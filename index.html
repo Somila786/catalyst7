@@ -177,6 +177,60 @@
   .nav__cta .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); transition: background 200ms ease; }
   .nav__cta:hover .dot { background: #fff; }
 
+  /* ---------- Mobile nav ---------- */
+  .nav__burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 5px;
+    width: 28px;
+    height: 28px;
+    z-index: 101;
+  }
+  .nav__burger span {
+    display: block;
+    width: 100%;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform 280ms ease, opacity 200ms ease;
+  }
+  .nav__burger.is-open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  .nav__burger.is-open span:nth-child(2) { opacity: 0; }
+  .nav__burger.is-open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+  .nav__mobile {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 28px;
+    padding: 0 var(--gutter);
+    background: rgba(5,5,5,0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-16px);
+    transition: opacity 280ms ease, transform 280ms ease, visibility 280ms ease;
+  }
+  .nav__mobile.is-open { opacity: 1; visibility: visible; transform: translateY(0); }
+  .nav__mobile a {
+    font-size: clamp(32px, 9vw, 56px);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    color: #fff;
+    opacity: 0.8;
+    transition: opacity 180ms ease, color 180ms ease;
+  }
+  .nav__mobile a.is-active { color: var(--red); opacity: 1; }
+  .nav__mobile a:hover { opacity: 1; }
+  .nav__mobile__cta { margin-top: 12px; align-self: flex-start; }
+  body.nav-open { overflow: hidden; }
+
   /* ---------- Section frame ---------- */
   .sec { position: relative; }
   .sec--dark { background: #000; color: #fff; }
@@ -1053,8 +1107,9 @@
   }
   @media (max-width: 900px) {
     :root { --gutter: 24px; }
-    .nav__inner { grid-template-columns: 1fr auto; }
+    .nav__inner { grid-template-columns: 1fr auto auto; gap: 20px; }
     .nav__links { display: none; }
+    .nav__burger { display: flex; }
     .sec-pad { padding: 100px 0; }
     .sec-head { grid-template-columns: 1fr; gap: 24px; margin-bottom: 56px; }
     .sec-head__meta { justify-self: start; text-align: left; }
@@ -1090,8 +1145,21 @@
     <div class="nav__cta-wrap">
       <a href="contact.html" class="nav__cta">Start a Project<span class="dot"></span></a>
     </div>
+    <button class="nav__burger" id="navBurger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="navMobile">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </nav>
+
+<!-- ============ MOBILE NAV ============ -->
+<div class="nav__mobile" id="navMobile">
+  <a href="services.html">Services</a>
+  <a href="work.html">Work</a>
+  <a href="studio.html">Studio</a>
+  <a href="process.html">Process</a>
+  <a href="contact.html">Contact</a>
+  <a href="contact.html" class="nav__cta nav__mobile__cta">Start a Project<span class="dot"></span></a>
+</div>
 
 <!-- ============ HERO ============ -->
 <header class="hero">
@@ -1479,6 +1547,25 @@
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+
+  // ── Mobile nav toggle
+  const navBurger = document.getElementById('navBurger');
+  const navMobile = document.getElementById('navMobile');
+  if (navBurger && navMobile) {
+    const closeMobileNav = () => {
+      navBurger.classList.remove('is-open');
+      navMobile.classList.remove('is-open');
+      document.body.classList.remove('nav-open');
+      navBurger.setAttribute('aria-expanded', 'false');
+    };
+    navBurger.addEventListener('click', () => {
+      const isOpen = navBurger.classList.toggle('is-open');
+      navMobile.classList.toggle('is-open', isOpen);
+      document.body.classList.toggle('nav-open', isOpen);
+      navBurger.setAttribute('aria-expanded', String(isOpen));
+    });
+    navMobile.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMobileNav));
+  }
 
   // ── Services accordion — single-open
   document.querySelectorAll('.service').forEach(svc => {
