@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catalyst 7 — Creative Technology Studio · Pretoria</title>
+
+<style>
+  /* ---------- Reset & base ---------- */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; background: #000; }
+  body {
+    background: #000;
+    color: #fff;
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+  img { max-width: 100%; display: block; }
+  ::selection { background: #EF0606; color: #fff; }
+
+  /* ---------- Tokens ---------- */
+  :root {
+    --red: #EF0606;
+    --white: #fff;
+    --stone: #EFEEE8;
+    --ink: #000;
+    --dark: #0A0A0A;
+    --gutter: 40px;
+    --max: 1720px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  /* ---------- Type primitives ---------- */
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .display {
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.86;
+    text-transform: uppercase;
+  }
+
+  .stroke-white { color: transparent; -webkit-text-stroke: 1.5px #fff; }
+  .stroke-black { color: transparent; -webkit-text-stroke: 1.5px #000; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .btn .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+
+  /* Dark-section variants */
+  .btn--ghost-w { color: #fff; border-color: rgba(255,255,255,0.4); }
+  .btn--ghost-w:hover { background: #fff; color: #000; border-color: #fff; }
+  .btn--red { background: var(--red); border-color: var(--red); color: #fff; }
+  .btn--red:hover { background: #fff; color: var(--red); border-color: #fff; }
+
+  /* Light-section variants */
+  .btn--ghost-k { color: #000; border-color: rgba(0,0,0,0.35); }
+  .btn--ghost-k:hover { background: #000; color: #fff; border-color: #000; }
+  .btn--ink { background: #000; border-color: #000; color: var(--red); }
+  .btn--ink:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+  /* Red-section variant */
+  .btn--inkred { background: #000; color: var(--red); border-color: #000; }
+  .btn--inkred:hover { background: #fff; color: var(--red); border-color: #fff; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 0;
+    /* mix-blend-mode: difference removed — causes colour inversion on white sections */
+    transition: background 250ms ease, backdrop-filter 250ms ease, border-color 250ms ease, color 250ms ease;
+    border-bottom: 1px solid transparent;
+    color: #fff;
+  }
+  .nav.is-scrolled {
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border-bottom-color: rgba(255,255,255,0.08);
+  }
+  .nav__inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 32px;
+  }
+  .logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--red); }
+  .nav__links {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+  }
+  .nav__links a {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    position: relative;
+    opacity: 0.85;
+    transition: opacity 180ms ease;
+  }
+  .nav__links a:hover { opacity: 1; }
+  .nav__links a::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -6px;
+    height: 1px;
+    background: var(--red);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 220ms ease;
+  }
+  .nav__links a:hover::after { transform: scaleX(1); }
+  .nav__links a.is-active { opacity: 1; }
+  .nav__links a.is-active::after { transform: scaleX(1); }
+  .nav__cta-wrap { justify-self: end; }
+  .nav__cta {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 12px 20px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.9;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease, opacity 180ms ease;
+  }
+  .nav__cta:hover {
+    opacity: 1;
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+  }
+  .nav__cta .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); transition: background 200ms ease; }
+  .nav__cta:hover .dot { background: #fff; }
+
+  /* ---------- Section frame ---------- */
+  .sec { position: relative; }
+  .sec--dark { background: #000; color: #fff; }
+  .sec--light { background: #fff; color: #000; }
+  .sec--red { background: var(--red); color: #000; }
+  .sec--ink { background: var(--dark); color: #fff; }
+
+  .sec-pad { padding: 160px 0; }
+
+  .sec-head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
+    align-items: baseline;
+    margin-bottom: 96px;
+  }
+  .sec-head h2 {
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 0.96;
+    max-width: 14ch;
+  }
+  .sec-head__meta { justify-self: end; text-align: right; max-width: 360px; }
+  .sec-head__meta .eyebrow { display: block; margin-bottom: 14px; }
+  .sec-head__meta p { font-size: 14px; line-height: 1.55; opacity: 0.7; }
+
+  /* ============================================================ */
+  /* HERO ======================================================== */
+  /* ============================================================ */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    overflow: hidden;
+  }
+
+  /* LEFT: type pane */
+  .hero__type {
+    position: relative;
+    padding: 140px var(--gutter) 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 3;
+  }
+  .hero__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .hero__marker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.78);
+  }
+  .hero__marker .pulse {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--red);
+    position: relative;
+  }
+  .hero__marker .pulse::after {
+    content: "";
+    position: absolute; inset: -5px;
+    border-radius: 50%;
+    border: 1px solid var(--red);
+    animation: pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(0.55); opacity: 1; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
+
+  .hero__headline {
+    font-size: clamp(92px, 13.5vw, 200px);
+    margin-top: auto;
+    margin-bottom: 56px;
+    width: max-content;
+    max-width: 130%;
+  }
+  .hero__headline .line { display: block; margin-left: -0.06em; }
+  .hero__headline .line.red    { color: var(--red); }
+  .hero__headline .line.white  { color: #fff; }
+  .hero__headline .line.outline { color: transparent; -webkit-text-stroke: 1.5px #fff; }
+
+  .hero__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px;
+  }
+  .hero__descriptor { max-width: 380px; }
+  .hero__descriptor p {
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.55);
+    max-width: 36ch;
+  }
+  .hero__ctas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* RIGHT: image pane */
+  .hero__image {
+    position: relative;
+    overflow: hidden;
+    background: #0a0a0a;
+  }
+
+  /* ↓↓↓ SWAP HERO IMAGE: replace the gradient below with your photo
+     background-image: url('YOUR_PHOTO_URL');
+     background-size: cover;
+     background-position: center;
+  */
+  .hero__image-fill {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 80% 20%, rgba(239,6,6,0.35), transparent 55%),
+      radial-gradient(ellipse 100% 80% at 20% 90%, rgba(60,10,10,0.6), transparent 60%),
+      linear-gradient(135deg, #1a0707 0%, #0c0303 45%, #050505 100%);
+  }
+  .hero__image-shaft {
+    position: absolute;
+    inset: 0 0 0 0;
+    background:
+      linear-gradient(90deg,
+        transparent 0%,
+        transparent 28%,
+        rgba(255,255,255,0.04) 28%,
+        rgba(255,255,255,0.10) 32%,
+        rgba(255,255,255,0.02) 36%,
+        transparent 36%),
+      linear-gradient(90deg,
+        transparent 0%,
+        transparent 58%,
+        rgba(239,6,6,0.08) 58%,
+        rgba(239,6,6,0.18) 62%,
+        rgba(239,6,6,0.04) 66%,
+        transparent 66%);
+    mix-blend-mode: screen;
+  }
+  .hero__image-hatch {
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 6px);
+    mix-blend-mode: overlay;
+    opacity: 0.6;
+  }
+  .hero__image-label {
+    position: absolute;
+    right: 32px;
+    bottom: 32px;
+    z-index: 3;
+    text-align: right;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.6;
+  }
+  .hero__image-label .red-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+  .hero__image-vt {
+    position: absolute;
+    left: 28px;
+    top: 50%;
+    transform: rotate(-90deg) translateX(50%);
+    transform-origin: left center;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    white-space: nowrap;
+    z-index: 3;
+  }
+  .hero__image::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, #000 0%, rgba(0,0,0,0.7) 8%, rgba(0,0,0,0) 24%);
+    z-index: 2;
+    pointer-events: none;
+  }
+  .hero__image::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.45) 100%);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .hero__grain {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 4;
+    opacity: 0.32;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  .hero__scroll {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+  }
+  .hero__scroll-line {
+    width: 1px; height: 56px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.5), rgba(255,255,255,0));
+    position: relative;
+    overflow: hidden;
+  }
+  .hero__scroll-line::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 30%;
+    background: var(--red);
+    animation: scrollDown 2.2s ease-in-out infinite;
+  }
+  @keyframes scrollDown {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(330%); }
+  }
+
+  /* ============================================================ */
+  /* SERVICES (WHITE) ============================================ */
+  /* ============================================================ */
+  .services-list { border-top: 1px solid rgba(0,0,0,0.14); }
+  .service {
+    border-bottom: 1px solid rgba(0,0,0,0.14);
+    transition: background 250ms ease;
+  }
+  .service:hover { background: rgba(0,0,0,0.02); }
+  .service__row {
+    display: grid;
+    grid-template-columns: 120px 1fr auto auto;
+    gap: 32px;
+    align-items: center;
+    padding: 36px 0;
+    cursor: pointer;
+    user-select: none;
+  }
+  .service__num {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--red);
+  }
+  .service__name {
+    font-size: clamp(36px, 4.2vw, 56px);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    transition: transform 250ms ease, color 250ms ease;
+  }
+  .service:hover .service__name { transform: translateX(8px); }
+  .service__tag {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.45);
+  }
+  .service__toggle {
+    width: 44px; height: 44px;
+    border: 1px solid rgba(0,0,0,0.25);
+    border-radius: 50%;
+    position: relative;
+    transition: background 220ms ease, border-color 220ms ease, transform 350ms ease;
+  }
+  .service__toggle::before,
+  .service__toggle::after {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 14px; height: 1.5px;
+    background: #000;
+    transform: translate(-50%, -50%);
+    transition: transform 280ms ease, background 220ms ease;
+  }
+  .service__toggle::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .service.is-open .service__toggle { background: var(--red); border-color: var(--red); transform: rotate(180deg); }
+  .service.is-open .service__toggle::before,
+  .service.is-open .service__toggle::after { background: #fff; }
+  .service.is-open .service__toggle::after { transform: translate(-50%, -50%) rotate(0deg); }
+  .service.is-open .service__name { color: var(--red); }
+
+  .service__body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 360ms ease;
+  }
+  .service.is-open .service__body { grid-template-rows: 1fr; }
+  .service__body-inner { overflow: hidden; }
+  .service__body-content {
+    display: grid;
+    grid-template-columns: 120px 1.2fr 1fr;
+    gap: 32px;
+    padding: 0 0 48px;
+    align-items: start;
+  }
+  .service__body-content > div:first-child { color: transparent; }
+  .service__desc {
+    font-size: 18px;
+    line-height: 1.45;
+    color: rgba(0,0,0,0.85);
+    max-width: 52ch;
+  }
+  .service__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .service__tags span {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 7px 12px;
+    border: 1px solid rgba(0,0,0,0.22);
+    border-radius: 999px;
+    color: rgba(0,0,0,0.8);
+  }
+
+  /* ============================================================ */
+  /* MANIFESTO (BLACK) =========================================== */
+  /* ============================================================ */
+  .manifesto {
+    padding: 200px 0;
+    text-align: center;
+    background: #000;
+  }
+  .manifesto__bar {
+    width: 1px;
+    height: 96px;
+    background: var(--red);
+    margin: 0 auto 64px;
+  }
+  .manifesto__quote {
+    font-size: clamp(40px, 5.6vw, 92px);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+    max-width: 16ch;
+    margin: 0 auto;
+  }
+  .manifesto__quote em { font-style: normal; color: var(--red); }
+  .manifesto__sig {
+    margin-top: 64px;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+  }
+  .manifesto__sig .bar { width: 32px; height: 1px; background: rgba(255,255,255,0.35); display: inline-block; }
+
+  /* ============================================================ */
+  /* ABOUT (WHITE) =============================================== */
+  /* ============================================================ */
+  .about__grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 96px;
+    align-items: start;
+  }
+  .about__ghost {
+    font-size: clamp(280px, 30vw, 480px);
+    font-weight: 900;
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    color: transparent;
+    -webkit-text-stroke: 3px rgba(0,0,0,0.55);
+    margin-bottom: -0.08em;
+  }
+  .about__headline {
+    font-size: clamp(40px, 4.6vw, 60px);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    max-width: 16ch;
+  }
+  .about__headline em { font-style: normal; color: var(--red); }
+  .about__right p {
+    font-size: 15px;
+    line-height: 1.65;
+    color: rgba(0,0,0,0.75);
+    margin-bottom: 22px;
+  }
+  .about__right p:first-of-type::first-letter {
+    color: var(--red);
+    font-weight: 600;
+  }
+  .about__right .eyebrow {
+    display: block;
+    margin-bottom: 28px;
+    color: rgba(0,0,0,0.55);
+  }
+  .about__right .btn { margin-top: 20px; }
+
+  /* ============================================================ */
+  /* ECOSYSTEM (RED) ============================================= */
+  /* ============================================================ */
+  .ecosystem {
+    background: var(--red);
+    color: #000;
+    position: relative;
+    overflow: hidden;
+    padding: 180px 0 160px;
+  }
+  .ecosystem__ghost {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(180px, 28vw, 480px);
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(0,0,0,0.13);
+    line-height: 0.8;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ecosystem__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 96px;
+    align-items: start;
+  }
+  .ecosystem__eyebrow {
+    display: block;
+    margin-bottom: 32px;
+    color: rgba(0,0,0,0.7);
+  }
+  .ecosystem__headline {
+    font-size: clamp(56px, 6.4vw, 104px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.92;
+    margin-bottom: 36px;
+  }
+  .ecosystem__lede {
+    font-size: 16px;
+    line-height: 1.55;
+    color: rgba(0,0,0,0.55);
+    max-width: 38ch;
+    margin-bottom: 40px;
+  }
+  .ecosystem__pillars-wrap {
+    border: 1px solid rgba(0,0,0,0.35);
+    padding: 8px 28px 8px;
+    background: transparent;
+  }
+  .ecosystem__pillars { list-style: none; }
+  .ecosystem__pillars li {
+    border-bottom: 1px solid rgba(0,0,0,0.18);
+    padding: 22px 0;
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    gap: 20px;
+    align-items: center;
+  }
+  .ecosystem__pillars li:last-child { border-bottom: 0; }
+  .ecosystem__pillars .pn {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: rgba(0,0,0,0.6);
+  }
+  .ecosystem__pillars .pt {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.005em;
+  }
+  .ecosystem__pillars .pd {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.6);
+  }
+
+  /* ============================================================ */
+  /* WORK (BLACK) ================================================ */
+  /* ============================================================ */
+  .work__head {
+    padding: 140px var(--gutter) 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 24px;
+  }
+  .work__head .eyebrow { color: rgba(255,255,255,0.55); }
+  .work__head a {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 200ms ease;
+  }
+  .work__head a:hover { color: var(--red); }
+  .work__head a::after {
+    content: "→";
+    font-size: 14px;
+    transition: transform 220ms ease;
+  }
+  .work__head a:hover::after { transform: translateX(4px); }
+
+  .work__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .work__cell {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    cursor: pointer;
+    background: #0a0a0a;
+  }
+  .work__bg {
+    position: absolute; inset: 0;
+    transition: transform 800ms cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+  .work__cell:hover .work__bg { transform: scale(1.04) translateY(-4px); }
+  .work__bg::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.78) 100%);
+  }
+  .work__cell--01 .work__bg { background: linear-gradient(135deg, #1a1010 0%, #2a1414 50%, #4a0808 100%); }
+  .work__cell--02 .work__bg { background: linear-gradient(135deg, #0e0e10 0%, #1c1c22 60%, #0a0a0a 100%); }
+  .work__cell--03 .work__bg { background: linear-gradient(135deg, #181818 0%, #0a0a0a 100%); }
+  .work__cell--04 .work__bg { background: linear-gradient(135deg, #211212 0%, #3a0a0a 100%); }
+
+  .work__bg-pattern {
+    position: absolute; inset: 0;
+    opacity: 0.7;
+  }
+  .work__cell--01 .work__bg-pattern {
+    background-image:
+      radial-gradient(circle at 25% 35%, rgba(239,6,6,0.18), transparent 45%),
+      radial-gradient(circle at 80% 70%, rgba(255,255,255,0.05), transparent 50%);
+  }
+  .work__cell--02 .work__bg-pattern {
+    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 28px);
+  }
+  .work__cell--03 .work__bg-pattern {
+    background-image:
+      radial-gradient(circle at 70% 40%, rgba(239,6,6,0.22), transparent 45%),
+      radial-gradient(circle at 30% 80%, rgba(255,255,255,0.04), transparent 50%);
+  }
+  .work__cell--04 .work__bg-pattern {
+    background-image:
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 12px),
+      radial-gradient(circle at 50% 50%, rgba(239,6,6,0.15), transparent 55%);
+  }
+
+  .work__info {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 40px 44px;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+  }
+  .work__tag {
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--red);
+    display: block;
+    margin-bottom: 14px;
+  }
+  .work__title {
+    font-size: clamp(28px, 3vw, 40px);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .work__meta {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    text-align: right;
+  }
+  .work__num {
+    position: absolute;
+    top: 32px; left: 36px;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.55);
+    z-index: 2;
+  }
+  .work__hover {
+    position: absolute;
+    top: 24px; right: 24px;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transform: scale(0) rotate(-30deg);
+    transition: transform 360ms cubic-bezier(0.5, 1.6, 0.4, 1);
+  }
+  .work__cell:hover .work__hover { transform: scale(1) rotate(0); }
+  .work__hover svg { width: 18px; height: 18px; stroke: #fff; }
+
+  /* ============================================================ */
+  /* PROCESS (WHITE) ============================================= */
+  /* ============================================================ */
+  .process__headline {
+    font-size: clamp(44px, 6vw, 96px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.94;
+    margin-bottom: 96px;
+    max-width: 20ch;
+  }
+  .process__headline .arrow { color: var(--red); display: inline-block; margin: 0 0.1em; font-weight: 700; }
+  .process__headline em { font-style: normal; color: var(--red); }
+
+  .process__steps {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+    border-top: 1px solid rgba(0,0,0,0.14);
+    padding-top: 36px;
+  }
+  .step { padding-right: 16px; }
+  .step + .step { border-left: 1px solid rgba(0,0,0,0.08); padding-left: 28px; }
+  .step__num {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: var(--red);
+    margin-bottom: 28px;
+  }
+  .step__title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+    line-height: 1.05;
+    color: #000;
+  }
+  .step__desc {
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(0,0,0,0.55);
+  }
+
+  /* ============================================================ */
+  /* FOOTER CTA (BLACK) ========================================== */
+  /* ============================================================ */
+  .footer-cta {
+    padding: 220px 0 200px;
+    text-align: center;
+    background: #000;
+    position: relative;
+  }
+  .footer-cta__eyebrow {
+    display: inline-block;
+    margin-bottom: 48px;
+    color: rgba(255,255,255,0.55);
+  }
+  .footer-cta__headline {
+    font-size: clamp(72px, 12vw, 188px);
+    font-weight: 900;
+    letter-spacing: -0.045em;
+    line-height: 0.88;
+    margin-bottom: 56px;
+  }
+  .footer-cta__headline .l1 { display: block; color: #fff; }
+  .footer-cta__headline .l2 { display: block; color: var(--red); }
+  .footer-cta__headline .l3 {
+    display: block;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255,255,255,0.18);
+  }
+  .footer-cta__sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 56px;
+    max-width: 56ch;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .footer-cta__ctas {
+    display: inline-flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .footer-cta .btn { padding: 18px 32px; font-size: 12px; }
+
+  /* ============================================================ */
+  /* FOOTER (#0A0A0A) ============================================ */
+  /* ============================================================ */
+  .footer {
+    background: var(--dark);
+    padding: 72px 0 44px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .footer__top {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 56px;
+    margin-bottom: 88px;
+  }
+  .footer__brand .logo { font-size: 18px; margin-bottom: 18px; display: block; }
+  .footer__tag {
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.55);
+    max-width: 30ch;
+  }
+  .footer__col h4 {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 24px;
+  }
+  .footer__col ul { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .footer__col a {
+    font-size: 14px;
+    color: rgba(255,255,255,0.85);
+    transition: color 180ms ease;
+  }
+  .footer__col a:hover { color: var(--red); }
+  .footer__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 36px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .footer__copy {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+  .footer__social { display: flex; gap: 28px; }
+  .footer__social a {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+  }
+  .footer__social a:hover { color: var(--red); }
+
+  /* ============================================================ */
+  /* PAGE LOAD ANIMATION ========================================= */
+  /* ============================================================ */
+  .page-load {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .page-load.is-loaded {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .page-load--d1 { transition-delay: 0.1s; }
+  .page-load--d2 { transition-delay: 0.25s; }
+  .page-load--d3 { transition-delay: 0.4s; }
+
+  /* ============================================================ */
+  /* SCROLL REVEAL =============================================== */
+  /* ============================================================ */
+  .sr {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.75s ease, transform 0.75s ease;
+  }
+  .sr.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger: children animate in sequence with 0.1s offsets */
+  .sr-stagger > * {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.75s ease, transform 0.75s ease;
+  }
+  .sr-stagger.is-visible > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0s; }
+  .sr-stagger.is-visible > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
+  .sr-stagger.is-visible > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
+  .sr-stagger.is-visible > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+  .sr-stagger.is-visible > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+
+  /* ============================================================ */
+  /* CUSTOM CURSOR (pointer: fine devices only) ================== */
+  /* ============================================================ */
+  @media (pointer: fine) {
+    * { cursor: none !important; }
+
+    .cursor-dot {
+      position: fixed;
+      width: 6px; height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      will-change: left, top;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 32px; height: 32px;
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 200ms ease, height 200ms ease, border-color 200ms ease;
+      will-change: left, top;
+    }
+    .cursor-ring.is-hover {
+      width: 52px; height: 52px;
+      border-color: var(--red);
+    }
+  }
+
+  /* ============================================================ */
+  /* RESPONSIVE ================================================== */
+  /* ============================================================ */
+  @media (max-width: 1100px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero__image { aspect-ratio: 16/9; min-height: 320px; }
+    .hero__image::before { background: linear-gradient(0deg, #000 0%, rgba(0,0,0,0.7) 8%, rgba(0,0,0,0) 24%); }
+    .hero__headline { margin-bottom: 40px; }
+  }
+  @media (max-width: 900px) {
+    :root { --gutter: 24px; }
+    .nav__inner { grid-template-columns: 1fr auto; }
+    .nav__links { display: none; }
+    .sec-pad { padding: 100px 0; }
+    .sec-head { grid-template-columns: 1fr; gap: 24px; margin-bottom: 56px; }
+    .sec-head__meta { justify-self: start; text-align: left; }
+    .service__row { grid-template-columns: 60px 1fr auto; }
+    .service__tag { display: none; }
+    .service__body-content { grid-template-columns: 1fr; gap: 20px; }
+    .service__body-content > div:first-child { display: none; }
+    .about__grid, .ecosystem__inner, .footer__top { grid-template-columns: 1fr; gap: 48px; }
+    .work__grid { grid-template-columns: 1fr; }
+    .work__head { padding: 90px var(--gutter) 36px; }
+    .process__steps { grid-template-columns: 1fr; gap: 28px; }
+    .step + .step { border-left: 0; padding-left: 0; padding-top: 28px; border-top: 1px solid rgba(0,0,0,0.08); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor — hidden on touch/coarse devices via CSS media query -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ============ NAV ============ -->
+<nav class="nav page-load" id="nav">
+  <div class="wrap nav__inner">
+    <a href="#" class="logo">CATALYST<span>7</span></a>
+    <div class="nav__links">
+      <a href="services.html">Services</a>
+      <a href="work.html">Work</a>
+      <a href="studio.html">Studio</a>
+      <a href="process.html">Process</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav__cta-wrap">
+      <a href="contact.html" class="nav__cta">Start a Project<span class="dot"></span></a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="hero__grain"></div>
+
+  <!-- LEFT: Type -->
+  <div class="hero__type">
+    <div class="hero__top page-load page-load--d1">
+      <span class="hero__marker">
+        <span class="pulse"></span>
+        Pretoria · Gauteng · South Africa
+      </span>
+    </div>
+
+    <h1 class="hero__headline display page-load page-load--d2">
+      <span class="line red">Ignite.</span>
+      <span class="line white">Elevate.</span>
+      <span class="line outline">Disrupt.</span>
+    </h1>
+
+    <div class="hero__bottom page-load page-load--d3">
+      <div class="hero__descriptor">
+        <p>A creative-tech studio operating across technology, strategy and production.</p>
+      </div>
+      <div class="hero__ctas">
+        <a href="work.html" class="btn btn--ghost-w">View Work</a>
+        <a href="contact.html" class="btn btn--red">Book Discovery<span class="dot"></span></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Editorial image placeholder -->
+  <div class="hero__image page-load page-load--d1">
+    <div class="hero__image-fill"></div>
+    <div class="hero__image-shaft"></div>
+    <div class="hero__image-hatch"></div>
+    <div class="hero__image-vt">Plate 001 · Cinematic Still</div>
+    <div class="hero__image-label">
+      <div>EST. 2025 · IDX 001 / 004</div>
+      <div>26°S 28°E <span class="red-dot"></span></div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="hero__scroll">
+    <span>Scroll</span>
+    <div class="hero__scroll-line"></div>
+  </div>
+</header>
+
+<!-- ============ SERVICES (WHITE) ============ -->
+<section class="sec sec--light sec-pad services" id="services">
+  <div class="wrap">
+    <div class="sec-head sr">
+      <h2>What we run<br>on your behalf.</h2>
+      <div class="sec-head__meta">
+        <span class="eyebrow" style="color: rgba(0,0,0,0.5);">Section · 02 / Capabilities</span>
+        <p>Four practices. One operating system. Engage them à la carte or as a single retainer.</p>
+      </div>
+    </div>
+
+    <div class="services-list">
+      <div class="service is-open sr">
+        <div class="service__row">
+          <div class="service__num">01</div>
+          <div class="service__name">Social Media Content</div>
+          <div class="service__tag">Layer 01 · Production &amp; Media</div>
+          <div class="service__toggle" aria-label="Expand"></div>
+        </div>
+        <div class="service__body">
+          <div class="service__body-inner">
+            <div class="service__body-content">
+              <div>&nbsp;</div>
+              <p class="service__desc">Scroll-stopping content built for the algorithm and the audience. Reels, carousels, static posts, and monthly content retainers — all shot, edited, and calibrated for Instagram, TikTok, Facebook, and LinkedIn.</p>
+              <div class="service__tags">
+                <span>Reels</span><span>Carousels</span><span>Content Strategy</span><span>Monthly Retainer</span><span>Instagram</span><span>TikTok</span><span>Facebook</span><span>LinkedIn</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="service sr">
+        <div class="service__row">
+          <div class="service__num">02</div>
+          <div class="service__name">Brand Identity &amp; Design</div>
+          <div class="service__tag">Layer 02 · Business Consultancy + Production</div>
+          <div class="service__toggle"></div>
+        </div>
+        <div class="service__body">
+          <div class="service__body-inner">
+            <div class="service__body-content">
+              <div>&nbsp;</div>
+              <p class="service__desc">From logo mark to full brand system. We build the visual language your business speaks — identity, typography, colour, and the design guidelines that keep everything consistent across every touchpoint.</p>
+              <div class="service__tags">
+                <span>Logo Design</span><span>Brand Systems</span><span>Visual Identity</span><span>Typography</span><span>Brand Guidelines</span><span>Retainer</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="service sr">
+        <div class="service__row">
+          <div class="service__num">03</div>
+          <div class="service__name">Video &amp; Film Production</div>
+          <div class="service__tag">Layer 03 · Production &amp; Media</div>
+          <div class="service__toggle"></div>
+        </div>
+        <div class="service__body">
+          <div class="service__body-inner">
+            <div class="service__body-content">
+              <div>&nbsp;</div>
+              <p class="service__desc">Social ads to full brand films to TVCs. We direct, shoot, and deliver cinematic work — including VFX and Blender animation for brands that need to go further than a camera can reach.</p>
+              <div class="service__tags">
+                <span>Brand Films</span><span>Social Ads</span><span>TVC</span><span>VFX</span><span>Animation</span><span>Blender</span><span>Direction</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="service sr">
+        <div class="service__row">
+          <div class="service__num">04</div>
+          <div class="service__name">Web, Chatbot &amp; Automation</div>
+          <div class="service__tag">Layer 04 · Technology</div>
+          <div class="service__toggle"></div>
+        </div>
+        <div class="service__body">
+          <div class="service__body-inner">
+            <div class="service__body-content">
+              <div>&nbsp;</div>
+              <p class="service__desc">Landing pages to full e-commerce platforms, Botpress chatbot builds, Make.com automation workflows, and custom AI agent systems — built on Claude, ChatGPT, and Shopify where the brief demands it. We build the technology infrastructure that makes your business run without you in the room.</p>
+              <div class="service__tags">
+                <span>Websites</span><span>Botpress</span><span>Make.com</span><span>Shopify</span><span>E-Commerce</span><span>AI Systems</span><span>Claude</span><span>ChatGPT</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MANIFESTO (BLACK) ============ -->
+<section class="sec sec--dark manifesto">
+  <div class="wrap">
+    <div class="manifesto__bar sr"></div>
+    <h2 class="manifesto__quote sr">
+      We don't take<br>briefs. We take<br><em>positions.</em>
+    </h2>
+    <div class="manifesto__sig sr">
+      <span class="bar"></span>
+      <span>Catalyst 7 · Studio Code</span>
+      <span class="bar"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABOUT (WHITE) ============ -->
+<section class="sec sec--light sec-pad" id="about">
+  <div class="wrap">
+    <div class="about__grid">
+      <div class="about__left sr">
+        <div class="about__ghost">3</div>
+        <h2 class="about__headline">One studio.<br>Three layers.<br><em>No ceiling.</em></h2>
+      </div>
+      <div class="about__right sr">
+        <span class="eyebrow">Section · 04 / Studio</span>
+        <p>Catalyst 7 is a creative technology studio in Pretoria. We were assembled in 2025 to do one thing — close the gap between what businesses say and what they actually ship.</p>
+        <p>The studio runs across three layers — engineering, strategy, and production — under a single operating discipline. You get one partner with the texture of three teams, none of the handoffs.</p>
+        <p>We work with operators, founders and cultural producers across Southern Africa and beyond. Most engagements start with a single conversation and end as long-running ecosystems.</p>
+        <a href="studio.html#code" class="btn btn--ghost-k">Read the Studio Code</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ECOSYSTEM (RED) ============ -->
+<section class="sec sec--red ecosystem">
+  <div class="ecosystem__ghost">ECOSYSTEM</div>
+  <div class="wrap ecosystem__inner">
+    <div class="sr">
+      <span class="eyebrow ecosystem__eyebrow">Section · 05 / Retainer</span>
+      <h2 class="ecosystem__headline">The Ecosystem<br>Retainer.</h2>
+      <p class="ecosystem__lede">Content. Brand. Film. Tech. All four working as one engine — with a 10% bundle discount built in. For businesses that are done doing things halfway.</p>
+      <a href="contact.html" class="btn btn--inkred">Apply for a Retainer<span class="dot"></span></a>
+    </div>
+
+    <div class="ecosystem__pillars-wrap sr">
+      <ul class="ecosystem__pillars">
+        <li><span class="pn">P · 01</span><span class="pt">Embedded engineering</span><span class="pd">Always-on</span></li>
+        <li><span class="pn">P · 02</span><span class="pt">Strategic counsel</span><span class="pd">Weekly</span></li>
+        <li><span class="pn">P · 03</span><span class="pt">Production capacity</span><span class="pd">Quarterly</span></li>
+        <li><span class="pn">P · 04</span><span class="pt">Priority lane &amp; SLAs</span><span class="pd">24h</span></li>
+        <li><span class="pn">P · 05</span><span class="pt">Quarterly business review</span><span class="pd">On-site</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WORK (BLACK) ============ -->
+<section class="sec sec--dark" id="work">
+  <div class="work__head sr">
+    <span class="eyebrow">Section · 06 / Selected Work</span>
+    <a href="work.html">View All Work</a>
+  </div>
+
+  <div class="work__grid">
+    <article class="work__cell work__cell--01 sr">
+      <div class="work__bg"><div class="work__bg-pattern"></div></div>
+      <span class="work__num">W · 01</span>
+      <div class="work__hover">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="9 7 17 7 17 15"></polyline></svg>
+      </div>
+      <div class="work__info">
+        <div>
+          <span class="work__tag">Strategy · Production</span>
+          <h3 class="work__title">Nuru House<br>for Next 5.</h3>
+        </div>
+        <div class="work__meta">2025 · ZA</div>
+      </div>
+    </article>
+
+    <article class="work__cell work__cell--02 sr">
+      <div class="work__bg"><div class="work__bg-pattern"></div></div>
+      <span class="work__num">W · 02</span>
+      <div class="work__hover">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="9 7 17 7 17 15"></polyline></svg>
+      </div>
+      <div class="work__info">
+        <div>
+          <span class="work__tag">Content · Media Production</span>
+          <h3 class="work__title">Social content &amp;<br>carousels for Maneuneu Physio.</h3>
+        </div>
+        <div class="work__meta">2025 · ZA</div>
+      </div>
+    </article>
+
+    <article class="work__cell work__cell--03 sr">
+      <div class="work__bg"><div class="work__bg-pattern"></div></div>
+      <span class="work__num">W · 03</span>
+      <div class="work__hover">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="9 7 17 7 17 15"></polyline></svg>
+      </div>
+      <div class="work__info">
+        <div>
+          <span class="work__tag">Production · Media</span>
+          <h3 class="work__title">Parrots<br>Wonderpark.</h3>
+        </div>
+        <div class="work__meta">2025 · ZA</div>
+      </div>
+    </article>
+
+    <article class="work__cell work__cell--04 sr">
+      <div class="work__bg"><div class="work__bg-pattern"></div></div>
+      <span class="work__num">W · 04</span>
+      <div class="work__hover">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="9 7 17 7 17 15"></polyline></svg>
+      </div>
+      <div class="work__info">
+        <div>
+          <span class="work__tag">Production</span>
+          <h3 class="work__title">KrownBarber<br>with Lefa the Barber.</h3>
+        </div>
+        <div class="work__meta">2025 · ZA</div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ PROCESS (WHITE) ============ -->
+<section class="sec sec--light sec-pad" id="process">
+  <div class="wrap">
+    <span class="eyebrow sr" style="display:block; margin-bottom: 32px; color: rgba(0,0,0,0.55);">Section · 07 / Operating System</span>
+    <h2 class="process__headline sr">
+      Intelligence <span class="arrow">→</span> Action <span class="arrow">→</span> <em>Measurement.</em>
+    </h2>
+
+    <div class="process__steps sr-stagger">
+      <div class="step">
+        <div class="step__num">STEP 01</div>
+        <div class="step__title">Listen</div>
+        <p class="step__desc">A two-week ground-truthing of the business, its people and its real bottleneck.</p>
+      </div>
+      <div class="step">
+        <div class="step__num">STEP 02</div>
+        <div class="step__title">Position</div>
+        <p class="step__desc">A one-page decision document. The thesis the work will defend.</p>
+      </div>
+      <div class="step">
+        <div class="step__num">STEP 03</div>
+        <div class="step__title">Build</div>
+        <p class="step__desc">Engineering, strategy and production move in parallel on weekly clocks.</p>
+      </div>
+      <div class="step">
+        <div class="step__num">STEP 04</div>
+        <div class="step__title">Ship</div>
+        <p class="step__desc">In market within ninety days. No quiet pilots, no permanent betas.</p>
+      </div>
+      <div class="step">
+        <div class="step__num">STEP 05</div>
+        <div class="step__title">Measure</div>
+        <p class="step__desc">A single number per engagement, reviewed every quarter. We earn the next one.</p>
+      </div>
+    </div>
+
+    <div class="sr" style="margin-top: 48px;">
+      <a href="process.html" class="btn btn--ghost-k">See the Full Process<span class="dot"></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER CTA (BLACK) ============ -->
+<section class="sec sec--dark footer-cta" id="contact">
+  <div class="wrap">
+    <span class="eyebrow footer-cta__eyebrow sr">Section · 08 / Start the conversation</span>
+    <h2 class="footer-cta__headline sr">
+      <span class="l1">Ready to</span>
+      <span class="l2">build</span>
+      <span class="l3">something?</span>
+    </h2>
+    <p class="footer-cta__sub sr">Discovery calls are free. Indecision is expensive.</p>
+    <div class="footer-cta__ctas sr">
+      <a href="mailto:catalyst7@catalyst7.co.za" class="btn btn--red">Book a Discovery Call<span class="dot"></span></a>
+      <a href="https://wa.me/27645576603" target="_blank" rel="noopener" class="btn btn--ghost-w">WhatsApp Us<span class="dot"></span></a>
+      <a href="work.html" class="btn btn--ghost-w" style="border-color: rgba(255,255,255,0.25);">See the Work First</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER (#0A0A0A) ============ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer__top sr-stagger">
+      <div class="footer__brand">
+        <a href="#" class="logo">CATALYST<span>7</span></a>
+        <p class="footer__tag">A creative technology studio in Pretoria. Engineering, strategy and production — under one signature.</p>
+      </div>
+      <div class="footer__col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="services.html#capabilities">Technology &amp; Automation</a></li>
+          <li><a href="services.html#capabilities">Business Consultancy</a></li>
+          <li><a href="services.html#capabilities">Production &amp; Media</a></li>
+          <li><a href="services.html#engage">Ecosystem Retainer</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Studio</h4>
+        <ul>
+          <li><a href="studio.html#code">Studio Code</a></li>
+          <li><a href="work.html">Selected Work</a></li>
+          <li><a href="process.html">Process</a></li>
+          <li><a href="#">Open Roles</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="mailto:catalyst7@catalyst7.co.za">catalyst7@catalyst7.co.za</a></li>
+          <li><a href="https://wa.me/27645576603" target="_blank" rel="noopener">WhatsApp · 064 557 6603</a></li>
+          <li><a href="#">Press &amp; Speaking</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom sr">
+      <span class="footer__copy">© 2026 Catalyst 7 (Pty) Ltd · All rights reserved</span>
+      <div class="footer__social">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">TikTok</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ── Nav blur on scroll
+  const nav = document.getElementById('nav');
+  const onScroll = () => {
+    nav.classList.toggle('is-scrolled', window.scrollY > 30);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // ── Services accordion — single-open
+  document.querySelectorAll('.service').forEach(svc => {
+    svc.querySelector('.service__row').addEventListener('click', () => {
+      const isOpen = svc.classList.contains('is-open');
+      document.querySelectorAll('.service').forEach(s => s.classList.remove('is-open'));
+      if (!isOpen) svc.classList.add('is-open');
+    });
+  });
+
+  // ── Page load animation — triggers on DOMContentLoaded so it fires fast
+  document.addEventListener('DOMContentLoaded', () => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.page-load').forEach(el => el.classList.add('is-loaded'));
+    });
+  });
+
+  // ── Scroll reveal via IntersectionObserver
+  const srObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        srObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.sr, .sr-stagger').forEach(el => srObserver.observe(el));
+
+  // ── Custom cursor — pointer (non-touch) devices only
+  (function () {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+
+    const dot  = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    if (!dot || !ring) return;
+
+    let mx = window.innerWidth / 2,  my = window.innerHeight / 2;
+    let rx = mx, ry = my;
+    let rafId = null;
+
+    // Lerp ring toward mouse — only ticks while ring is still catching up
+    function tick() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      if (Math.abs(mx - rx) > 0.15 || Math.abs(my - ry) > 0.15) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        rafId = null;
+      }
+    }
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX;
+      my = e.clientY;
+      dot.style.left = mx + 'px';
+      dot.style.top  = my + 'px';
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+
+    // Grow ring and turn red over interactive elements
+    document.querySelectorAll('a, button, [role="button"], .service__row, .work__cell').forEach(el => {
+      el.addEventListener('mouseenter', () => ring.classList.add('is-hover'));
+      el.addEventListener('mouseleave', () => ring.classList.remove('is-hover'));
+    });
+
+    // Hide cursors when mouse leaves the window
+    document.addEventListener('mouseleave', () => {
+      dot.style.opacity = '0';
+      ring.style.opacity = '0';
+    });
+    document.addEventListener('mouseenter', () => {
+      dot.style.opacity = '1';
+      ring.style.opacity = '1';
+    });
+  })();
+</script>
+
+</body>
+</html>

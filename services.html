@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services · Catalyst 7</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; background: #000; }
+  body {
+    background: #000;
+    color: #fff;
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+  img { max-width: 100%; display: block; }
+  ::selection { background: #EF0606; color: #fff; }
+
+  :root {
+    --red: #EF0606;
+    --white: #fff;
+    --stone: #EFEEE8;
+    --ink: #000;
+    --dark: #0A0A0A;
+    --gutter: 40px;
+    --max: 1720px;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 22px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .btn .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+  .btn--red { background: var(--red); border-color: var(--red); color: #fff; }
+  .btn--red:hover { background: #fff; color: var(--red); border-color: #fff; }
+  .btn--ghost-w { color: #fff; border-color: rgba(255,255,255,0.4); }
+  .btn--ghost-w:hover { background: #fff; color: #000; border-color: #fff; }
+  .btn--ghost-k { color: #000; border-color: rgba(0,0,0,0.35); }
+  .btn--ghost-k:hover { background: #000; color: var(--red); border-color: #000; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 0;
+    transition: background 250ms ease, backdrop-filter 250ms ease, border-color 250ms ease, color 250ms ease;
+    border-bottom: 1px solid transparent;
+    color: #fff;
+      }
+  .nav.is-scrolled {
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border-bottom-color: rgba(255,255,255,0.08);
+    mix-blend-mode: normal;
+  }
+  .nav__inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 32px;
+  }
+  .logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--red); }
+  .nav__links {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+  }
+  .nav__links a {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    position: relative;
+    opacity: 0.85;
+    transition: opacity 180ms ease;
+  }
+  .nav__links a:hover { opacity: 1; }
+  .nav__links a::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0; bottom: -6px;
+    height: 1px;
+    background: var(--red);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 220ms ease;
+  }
+  .nav__links a:hover::after { transform: scaleX(1); }
+  .nav__links a.is-active { opacity: 1; }
+  .nav__links a.is-active::after { transform: scaleX(1); }
+  .nav__cta-wrap { justify-self: end; }
+  .nav__cta {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 12px 20px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.9;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease, opacity 180ms ease;
+  }
+  .nav__cta:hover {
+    opacity: 1;
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+  }
+  .nav__cta .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); transition: background 200ms ease; }
+  .nav__cta:hover .dot { background: #fff; }
+
+  /* ============================================================ */
+  /* HERO ======================================================== */
+  /* ============================================================ */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    background: #000;
+    overflow: hidden;
+  }
+  .hero__type {
+    position: relative;
+    padding: 140px var(--gutter) 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    z-index: 3;
+  }
+  .hero__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: flex-start;
+  }
+  .hero__marker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.78);
+  }
+  .hero__marker .pulse {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--red);
+    position: relative;
+  }
+  .hero__marker .pulse::after {
+    content: "";
+    position: absolute; inset: -5px;
+    border-radius: 50%;
+    border: 1px solid var(--red);
+    animation: pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(0.55); opacity: 1; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
+  .hero__index {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    text-align: right;
+    line-height: 1.6;
+  }
+  .hero__index strong { color: #fff; font-weight: 500; }
+
+  .hero__headline {
+    font-weight: 900;
+    letter-spacing: -0.045em;
+    line-height: 0.84;
+    text-transform: uppercase;
+    font-size: clamp(84px, 12.5vw, 200px);
+    margin-top: auto;
+    width: max-content;
+    max-width: 130%;
+  }
+  .hero__headline .line { display: block; margin-left: -0.06em; }
+  .hero__headline .line.outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px #fff;
+  }
+  .hero__headline .dot { color: var(--red); -webkit-text-stroke: 0; }
+
+  .hero__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 32px;
+    margin-top: 56px;
+  }
+  .hero__sub {
+    max-width: 400px;
+    font-size: 16px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.62);
+  }
+  .hero__stats { display: flex; gap: 48px; }
+  .hero__stat { text-align: right; }
+  .hero__stat .v {
+    font-size: 44px;
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .hero__stat .l {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+  }
+  .hero__stat .v em { font-style: normal; color: var(--red); }
+
+  /* RIGHT image */
+  .hero__image { position: relative; overflow: hidden; background: #0a0a0a; }
+  .hero__image-fill {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 78% 22%, rgba(239,6,6,0.32), transparent 55%),
+      radial-gradient(ellipse 90% 70% at 20% 95%, rgba(50,8,8,0.6), transparent 60%),
+      linear-gradient(150deg, #1a0707 0%, #0a0303 50%, #050505 100%);
+  }
+  .hero__image-shaft {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg,
+        transparent 0%, transparent 32%,
+        rgba(255,255,255,0.05) 32%, rgba(255,255,255,0.12) 36%,
+        rgba(255,255,255,0.02) 40%, transparent 40%),
+      linear-gradient(90deg,
+        transparent 0%, transparent 62%,
+        rgba(239,6,6,0.08) 62%, rgba(239,6,6,0.2) 66%,
+        rgba(239,6,6,0.04) 70%, transparent 70%);
+    mix-blend-mode: screen;
+  }
+  .hero__image-hatch {
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 6px);
+    mix-blend-mode: overlay;
+    opacity: 0.6;
+  }
+  .hero__image::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, #000 0%, rgba(0,0,0,0.7) 8%, rgba(0,0,0,0) 24%);
+    z-index: 2; pointer-events: none;
+  }
+  .hero__image::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.45) 100%);
+    z-index: 2; pointer-events: none;
+  }
+  .hero__image-label {
+    position: absolute; right: 32px; bottom: 32px; z-index: 3;
+    text-align: right;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(255,255,255,0.7); line-height: 1.6;
+  }
+  .hero__image-label .red-dot {
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--red); border-radius: 50%;
+    margin-left: 10px; vertical-align: middle;
+  }
+  .hero__image-vt {
+    position: absolute; left: 28px; top: 50%;
+    transform: rotate(-90deg) translateX(50%);
+    transform-origin: left center;
+    font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); white-space: nowrap; z-index: 3;
+  }
+  .hero__grain {
+    position: absolute; inset: 0; pointer-events: none; z-index: 4;
+    opacity: 0.32; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* ============================================================ */
+  /* OVERVIEW STRIP (white) ====================================== */
+  /* ============================================================ */
+  .overview {
+    background: #fff;
+    color: #000;
+    padding: 96px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+  }
+  .overview__inner {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .overview__lead {
+    font-size: clamp(26px, 2.6vw, 38px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    max-width: 18ch;
+  }
+  .overview__lead em { font-style: normal; color: var(--red); }
+  .overview__body p {
+    font-size: 16px;
+    line-height: 1.7;
+    color: rgba(0,0,0,0.62);
+    margin-bottom: 20px;
+    max-width: 56ch;
+  }
+  .overview__body p:last-child { margin-bottom: 0; }
+  .overview__eyebrow { color: rgba(0,0,0,0.5); display: block; margin-bottom: 20px; }
+
+  /* ============================================================ */
+  /* CAPABILITIES ================================================ */
+  /* ============================================================ */
+  .caps { background: #000; padding: 130px 0 40px; }
+  .caps__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .caps__head h2 {
+    font-size: clamp(40px, 5vw, 72px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.96;
+    max-width: 16ch;
+  }
+  .caps__head .eyebrow { color: rgba(255,255,255,0.55); }
+  .caps__head-meta { text-align: right; max-width: 300px; }
+  .caps__head-meta .eyebrow { display: block; margin-bottom: 10px; }
+  .caps__head-meta p { color: rgba(255,255,255,0.55); font-size: 13px; line-height: 1.55; }
+
+  .cap {
+    border-top: 1px solid rgba(255,255,255,0.14);
+    padding: 80px 0;
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .cap:last-of-type { border-bottom: 1px solid rgba(255,255,255,0.14); }
+  .cap__left { position: relative; }
+  .cap__index {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .cap__num {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--red);
+  }
+  .cap__layer {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+  .cap__title {
+    font-size: clamp(40px, 4.6vw, 68px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    margin-bottom: 28px;
+  }
+  .cap__desc {
+    font-size: 17px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.7);
+    max-width: 50ch;
+    margin-bottom: 36px;
+  }
+  .cap__tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cap__tags span {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 999px;
+    color: rgba(255,255,255,0.8);
+  }
+
+  /* Right: deliverables list */
+  .cap__deliver { }
+  .cap__deliver-head {
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.14);
+    display: flex;
+    justify-content: space-between;
+  }
+  .cap__deliver ul { list-style: none; }
+  .cap__deliver li {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    transition: padding-left 240ms ease, background 240ms ease;
+  }
+  .cap__deliver li:hover { padding-left: 8px; }
+  .cap__deliver .dn {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    color: rgba(255,255,255,0.35);
+  }
+  .cap__deliver .dt {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #fff;
+  }
+  .cap__deliver .dm {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    text-align: right;
+  }
+
+  /* ============================================================ */
+  /* ENGAGEMENT MODELS (white) =================================== */
+  /* ============================================================ */
+  .models { background: #fff; color: #000; padding: 150px 0; }
+  .models__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-bottom: 72px;
+  }
+  .models__head h2 {
+    font-size: clamp(40px, 5vw, 72px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.96;
+    max-width: 14ch;
+  }
+  .models__head .eyebrow { color: rgba(0,0,0,0.5); }
+  .models__head-meta { text-align: right; max-width: 320px; }
+  .models__head-meta .eyebrow { display: block; margin-bottom: 10px; }
+  .models__head-meta p { color: rgba(0,0,0,0.55); font-size: 13px; line-height: 1.55; }
+
+  .models__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .model {
+    border: 1px solid rgba(0,0,0,0.14);
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 250ms ease, transform 350ms cubic-bezier(0.2,0.7,0.1,1);
+  }
+  .model:hover { transform: translateY(-6px); }
+  .model--red {
+    background: var(--red);
+    color: #000;
+    border-color: var(--red);
+  }
+  .model__tag {
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .model--red .model__tag { color: #000; }
+  .model__tag .bar { width: 24px; height: 1px; background: currentColor; display: inline-block; }
+  .model__name {
+    font-size: clamp(32px, 3.4vw, 48px);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+    margin-bottom: 18px;
+  }
+  .model__desc {
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(0,0,0,0.6);
+    max-width: 42ch;
+    margin-bottom: 36px;
+  }
+  .model--red .model__desc { color: rgba(0,0,0,0.7); }
+  .model__list { list-style: none; margin-bottom: 40px; flex: 1; }
+  .model__list li {
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    padding: 14px 0;
+    border-top: 1px solid rgba(0,0,0,0.12);
+    font-size: 14px;
+    color: rgba(0,0,0,0.78);
+  }
+  .model--red .model__list li { border-top-color: rgba(0,0,0,0.2); color: rgba(0,0,0,0.82); }
+  .model__list li::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--red);
+    flex: none;
+    transform: translateY(-2px);
+  }
+  .model--red .model__list li::before { background: #000; }
+  .model__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px 16px;
+    flex-wrap: wrap;
+    padding-top: 28px;
+    border-top: 1px solid rgba(0,0,0,0.14);
+  }
+  .model--red .model__foot { border-top-color: rgba(0,0,0,0.25); }
+  .model__price { }
+  .model__price .pv {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .model__price .pl {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.5);
+    margin-top: 8px;
+  }
+  .model--red .model__price .pl { color: rgba(0,0,0,0.6); }
+
+  /* ============================================================ */
+  /* CAP SERVICE LIST ============================================ */
+  /* ============================================================ */
+  .cap__svc { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 0 36px; margin-top: 4px; }
+  .cap__svc li {
+    padding: 13px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 14px;
+    color: rgba(255,255,255,0.82);
+    display: flex; gap: 11px; align-items: baseline;
+  }
+  .cap__svc li::before {
+    content: ""; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--red); flex: none; transform: translateY(-2px);
+  }
+
+  /* ============================================================ */
+  /* PRICING (white) ============================================= */
+  /* ============================================================ */
+  .pricing { background: #fff; color: #000; padding: 150px 0; }
+  .pricing__head { display: flex; justify-content: space-between; align-items: baseline; gap: 32px; flex-wrap: wrap; margin-bottom: 64px; }
+  .pricing__head h2 { font-size: clamp(40px, 5vw, 72px); font-weight: 900; letter-spacing: -0.04em; line-height: 0.96; max-width: 14ch; }
+  .pricing__head .eyebrow { color: rgba(0,0,0,0.5); }
+  .pricing__head-meta { text-align: right; max-width: 340px; }
+  .pricing__head-meta .eyebrow { display: block; margin-bottom: 10px; }
+  .pricing__head-meta p { color: rgba(0,0,0,0.55); font-size: 13px; line-height: 1.55; }
+
+  .tiers { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid rgba(0,0,0,0.16); }
+  .tier {
+    border-bottom: 1px solid rgba(0,0,0,0.16);
+    border-right: 1px solid rgba(0,0,0,0.1);
+    padding: 36px 28px 38px;
+    display: flex; flex-direction: column;
+    transition: background 250ms ease;
+  }
+  .tier:last-child { border-right: 0; }
+  .tier:hover { background: #faf9f5; }
+  .tier__n { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-bottom: 20px; }
+  .tier__name { font-size: 26px; font-weight: 900; letter-spacing: -0.035em; line-height: 1; margin-bottom: 12px; }
+  .tier__price { font-size: 15px; font-weight: 700; letter-spacing: -0.005em; margin-bottom: 12px; }
+  .tier__desc { font-size: 13px; line-height: 1.55; color: rgba(0,0,0,0.55); margin-bottom: 26px; }
+  .tier__list { list-style: none; margin-top: auto; }
+  .tier__list li { display: flex; justify-content: space-between; gap: 14px; padding: 12px 0; border-top: 1px solid rgba(0,0,0,0.1); font-size: 13px; }
+  .tier__list .o { color: rgba(0,0,0,0.82); }
+  .tier__list .p { color: rgba(0,0,0,0.5); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .tier__list li.flag .o { color: var(--red); font-weight: 600; }
+
+  .rates { margin-top: 88px; }
+  .rates__head { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; flex-wrap: wrap; margin-bottom: 10px; }
+  .rates__head h3 { font-size: clamp(26px, 2.8vw, 40px); font-weight: 900; letter-spacing: -0.035em; }
+  .rates__head .eyebrow { color: rgba(0,0,0,0.45); }
+  .rates__note { font-size: 14px; line-height: 1.6; color: rgba(0,0,0,0.55); max-width: 64ch; margin-bottom: 32px; }
+  .rate-head { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 24px; padding-bottom: 14px; }
+  .rate-head span { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(0,0,0,0.4); }
+  .rate-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 24px; align-items: baseline; padding: 22px 0; border-top: 1px solid rgba(0,0,0,0.12); }
+  .rate-row:last-child { border-bottom: 1px solid rgba(0,0,0,0.12); }
+  .rate-row .rn { font-size: 18px; font-weight: 700; letter-spacing: -0.015em; }
+  .rate-row .rn small { display: block; font-size: 12px; font-weight: 400; letter-spacing: 0; color: rgba(0,0,0,0.45); margin-top: 5px; }
+  .rate-row .rv { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+
+  /* ============================================================ */
+  /* PROCESS (black) ============================================= */
+  /* ============================================================ */
+  .process { background: #000; padding: 150px 0; }
+  .process__head { margin-bottom: 88px; }
+  .process__head .eyebrow { color: rgba(255,255,255,0.55); display: block; margin-bottom: 28px; }
+  .process__headline {
+    font-size: clamp(44px, 6vw, 96px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 0.94;
+    max-width: 18ch;
+  }
+  .process__headline .arrow { color: var(--red); display: inline-block; margin: 0 0.08em; font-weight: 700; }
+  .process__steps {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+    border-top: 1px solid rgba(255,255,255,0.14);
+    padding-top: 36px;
+  }
+  .step { padding-right: 16px; }
+  .step + .step { border-left: 1px solid rgba(255,255,255,0.08); padding-left: 28px; }
+  .step__num {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: var(--red);
+    margin-bottom: 28px;
+  }
+  .step__title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 14px;
+    line-height: 1.05;
+  }
+  .step__desc { font-size: 13px; line-height: 1.55; color: rgba(255,255,255,0.55); }
+
+  /* ============================================================ */
+  /* CTA STRIP =================================================== */
+  /* ============================================================ */
+  .cta {
+    background: #000;
+    color: #fff;
+    padding: 60px 0 180px;
+    position: relative;
+    text-align: center;
+  }
+  .cta__eyebrow { display: inline-block; margin-bottom: 36px; color: rgba(255,255,255,0.55); }
+  .cta__headline {
+    font-size: clamp(56px, 10vw, 168px);
+    font-weight: 900;
+    letter-spacing: -0.045em;
+    line-height: 0.9;
+    margin-bottom: 40px;
+  }
+  .cta__headline .l1 { display: block; color: #fff; }
+  .cta__headline .l2 { display: block; color: transparent; -webkit-text-stroke: 1.5px #fff; }
+  .cta__headline em { font-style: normal; color: var(--red); }
+  .cta__sub {
+    font-size: 16px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.6);
+    margin: 0 auto 48px;
+    max-width: 50ch;
+  }
+  .cta__btns { display: inline-flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .cta .btn--red { padding: 18px 32px; font-size: 12px; }
+
+  /* ============================================================ */
+  /* FOOTER ====================================================== */
+  /* ============================================================ */
+  .footer { background: var(--dark); padding: 72px 0 44px; border-top: 1px solid rgba(255,255,255,0.05); }
+  .footer__top {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 56px;
+    margin-bottom: 88px;
+  }
+  .footer__brand .logo { font-size: 18px; margin-bottom: 18px; display: block; }
+  .footer__tag {
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(255,255,255,0.55);
+    max-width: 30ch;
+    margin-bottom: 24px;
+  }
+  .footer__contact { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.8); }
+  .footer__contact a:hover { color: var(--red); }
+  .footer__contact .eyebrow { color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+  .footer__col h4 {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 24px;
+  }
+  .footer__col ul { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .footer__col a { font-size: 14px; color: rgba(255,255,255,0.85); transition: color 180ms ease; }
+  .footer__col a:hover { color: var(--red); }
+  .footer__bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 36px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .footer__copy { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+  .footer__social { display: flex; gap: 28px; }
+  .footer__social a { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.75); }
+  .footer__social a:hover { color: var(--red); }
+
+  /* ============================================================ */
+  /* RESPONSIVE ================================================== */
+  /* ============================================================ */
+  @media (max-width: 1100px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero__image { aspect-ratio: 16/9; min-height: 320px; }
+    .hero__image::before { background: linear-gradient(0deg, #000 0%, rgba(0,0,0,0.7) 8%, rgba(0,0,0,0) 24%); }
+    .hero__type { padding-bottom: 56px; }
+    .overview__inner { grid-template-columns: 1fr; gap: 40px; }
+    .cap { grid-template-columns: 1fr; gap: 48px; }
+    .tiers { grid-template-columns: 1fr 1fr; }
+    .tier:nth-child(2n) { border-right: 0; }
+  }
+  @media (max-width: 900px) {
+    :root { --gutter: 24px; }
+    .nav__inner { grid-template-columns: 1fr auto; }
+    .nav__links { display: none; }
+    .hero__bottom { flex-direction: column; align-items: flex-start; }
+    .hero__stats { gap: 32px; }
+    .tiers { grid-template-columns: 1fr; }
+    .tier { border-right: 0; }
+    .cap__svc { grid-template-columns: 1fr; }
+    .rate-head { display: none; }
+    .rate-row { grid-template-columns: 1fr; gap: 6px; padding: 20px 0; }
+    .rate-row .rv { font-size: 14px; color: rgba(0,0,0,0.72); }
+    .rate-row .rv::before { content: attr(data-label) "\00a0\00a0"; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(0,0,0,0.4); margin-right: 6px; }
+    .process__steps { grid-template-columns: 1fr; gap: 0; }
+    .step { padding: 28px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+    .step + .step { border-left: 0; padding-left: 0; }
+    .footer__top { grid-template-columns: 1fr; gap: 48px; }
+  }
+
+  /* ============================================================ */
+  /* PAGE LOAD ANIMATION ========================================= */
+  /* ============================================================ */
+  .page-load {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .page-load.is-loaded {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .page-load--d1 { transition-delay: 0.1s; }
+  .page-load--d2 { transition-delay: 0.25s; }
+  .page-load--d3 { transition-delay: 0.4s; }
+
+  /* ============================================================ */
+  /* SCROLL REVEAL =============================================== */
+  /* ============================================================ */
+  .sr {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.75s ease, transform 0.75s ease;
+  }
+  .sr.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger: children animate in sequence with 0.1s offsets */
+  .sr-stagger > * {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.75s ease, transform 0.75s ease;
+  }
+  .sr-stagger.is-visible > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0s; }
+  .sr-stagger.is-visible > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
+  .sr-stagger.is-visible > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
+  .sr-stagger.is-visible > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+  .sr-stagger.is-visible > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+
+  /* ============================================================ */
+  /* CUSTOM CURSOR (pointer: fine devices only) ================== */
+  /* ============================================================ */
+  @media (pointer: fine) {
+    * { cursor: none !important; }
+
+    .cursor-dot {
+      position: fixed;
+      width: 6px; height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      will-change: left, top;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 32px; height: 32px;
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 200ms ease, height 200ms ease, border-color 200ms ease;
+      will-change: left, top;
+    }
+    .cursor-ring.is-hover {
+      width: 52px; height: 52px;
+      border-color: var(--red);
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor — hidden on touch/coarse devices via CSS media query -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ============ NAV ============ -->
+<nav class="nav page-load" id="nav" data-screen-label="Nav">
+  <div class="wrap nav__inner">
+    <a href="index.html" class="logo">CATALYST<span>7</span></a>
+    <div class="nav__links">
+      <a href="services.html" class="is-active">Services</a>
+      <a href="work.html">Work</a>
+      <a href="studio.html">Studio</a>
+      <a href="process.html">Process</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav__cta-wrap">
+      <a href="contact.html" class="nav__cta">Start a Project<span class="dot"></span></a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" data-screen-label="01 Services Hero">
+  <div class="hero__grain"></div>
+
+  <!-- LEFT: Type -->
+  <div class="hero__type">
+    <div class="hero__top page-load page-load--d1">
+      <span class="hero__marker">
+        <span class="pulse"></span>
+        Section · Services · Capabilities
+      </span>
+      <div class="hero__index">
+        <div>03 LAYERS · 01 SIGNATURE</div>
+        <div><strong>Pretoria · ZA</strong></div>
+      </div>
+    </div>
+
+    <div class="page-load page-load--d2">
+      <h1 class="hero__headline">
+        <span class="line">What</span>
+        <span class="line">we</span>
+        <span class="line outline">run<span class="dot">.</span></span>
+      </h1>
+
+      <div class="hero__bottom">
+        <p class="hero__sub">Technology, consultancy and production under one operating discipline. Start with a single shoot or audit — or put the whole studio on retainer.</p>
+        <div class="hero__stats">
+          <div class="hero__stat">
+            <div class="v">03</div>
+            <div class="l">Capability layers</div>
+          </div>
+          <div class="hero__stat">
+            <div class="v"><em>R1.5K</em></div>
+            <div class="l">Entry point</div>
+          </div>
+          <div class="hero__stat">
+            <div class="v">01</div>
+            <div class="l">Accountable lead</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: editorial image -->
+  <div class="hero__image page-load page-load--d1">
+    <div class="hero__image-fill"></div>
+    <div class="hero__image-shaft"></div>
+    <div class="hero__image-hatch"></div>
+    <div class="hero__image-vt">Plate 002 · Operating System · Frame 01</div>
+    <div class="hero__image-label">
+      <div>THREE LAYERS · ONE STUDIO</div>
+      <div>EST. 2019 <span class="red-dot"></span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ OVERVIEW ============ -->
+<section class="overview" data-screen-label="02 Overview">
+  <div class="wrap overview__inner">
+    <p class="overview__lead sr">We don't sell hours. We ship <em>systems</em>, positions, and work that travels.</p>
+    <div class="overview__body sr">
+      <span class="eyebrow overview__eyebrow">Overview · How it fits together</span>
+      <p>Most studios specialise in one thing and outsource the rest. We run three layers — technology, business consultancy and production — under a single operating discipline, so the people building your software, naming your strategy and shooting your film share one channel and one clock.</p>
+      <p>Engage a single layer when you have a sharp brief — anything from a R1,500 shoot to a transformation programme. Put all three on retainer when you'd rather stop stitching agencies together. Either way you get one accountable lead and proof on a weekly clock.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAPABILITIES ============ -->
+<section class="caps" id="capabilities" data-screen-label="03 Capabilities">
+  <div class="wrap">
+    <div class="caps__head sr">
+      <h2>Three layers.<br>One operating system.</h2>
+      <div class="caps__head-meta">
+        <span class="eyebrow">Section · 03 / Capabilities</span>
+        <p>Each layer ships independently — or moves in parallel under one retainer.</p>
+      </div>
+    </div>
+
+    <!-- Capability 01 -->
+    <article class="cap sr" data-screen-label="Cap · Technology">
+      <div class="cap__left">
+        <div class="cap__index">
+          <span class="cap__num">01</span>
+          <span class="cap__layer">Layer 01 · Technology</span>
+        </div>
+        <h3 class="cap__title">Technology<br>&amp; Automation</h3>
+        <p class="cap__desc">AI automation, chatbots and the systems plumbing that runs a business without the meetings. We build on Make.com, Botpress and the Claude API, then wire it straight into your CRM and stack.</p>
+      </div>
+      <div class="cap__deliver">
+        <div class="cap__deliver-head"><span>What we do</span><span>10 services</span></div>
+        <ul class="cap__svc">
+          <li>AI automation (Make.com)</li>
+          <li>AI chatbots (Botpress)</li>
+          <li>AI implementation &amp; integration</li>
+          <li>Process automation</li>
+          <li>API integration</li>
+          <li>Claude API builds</li>
+          <li>CRM setup &amp; configuration</li>
+          <li>Marketing automation</li>
+          <li>Digital infrastructure</li>
+          <li>Web architecture</li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- Capability 02 -->
+    <article class="cap sr" data-screen-label="Cap · Consultancy">
+      <div class="cap__left">
+        <div class="cap__index">
+          <span class="cap__num">02</span>
+          <span class="cap__layer">Layer 02 · Consultancy</span>
+        </div>
+        <h3 class="cap__title">Business<br>Consultancy</h3>
+        <p class="cap__desc">Strategy that survives contact with operations. Brand, growth and go-to-market architecture — plus the discovery and audit work that scopes every engagement before a rand is spent.</p>
+      </div>
+      <div class="cap__deliver">
+        <div class="cap__deliver-head"><span>What we do</span><span>8 services</span></div>
+        <ul class="cap__svc">
+          <li>Brand strategy</li>
+          <li>Growth architecture</li>
+          <li>Go-to-market strategy</li>
+          <li>Business systems design</li>
+          <li>Discovery &amp; audit sessions</li>
+          <li>Ecosystem mapping</li>
+          <li>Proprietary growth frameworks</li>
+          <li>B-BBEE advisory</li>
+        </ul>
+      </div>
+    </article>
+
+    <!-- Capability 03 -->
+    <article class="cap sr" data-screen-label="Cap · Production">
+      <div class="cap__left">
+        <div class="cap__index">
+          <span class="cap__num">03</span>
+          <span class="cap__layer">Layer 03 · Production</span>
+        </div>
+        <h3 class="cap__title">Production<br>&amp; Media</h3>
+        <p class="cap__desc">Film, identity, photography and the content engine that keeps them all fed — the same craft behind a founder's headshot and a brand's campaign film.</p>
+      </div>
+      <div class="cap__deliver">
+        <div class="cap__deliver-head"><span>What we do</span><span>10 services</span></div>
+        <ul class="cap__svc">
+          <li>Film &amp; video production</li>
+          <li>VFX &amp; animation</li>
+          <li>Brand identity &amp; design</li>
+          <li>Personal branding photography</li>
+          <li>Product &amp; food photography</li>
+          <li>Social media content</li>
+          <li>Ad creative production</li>
+          <li>Podcast production</li>
+          <li>Motion graphics</li>
+          <li>Sound &amp; score composition</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ PRICING / ENGAGE ============ -->
+<section class="pricing" id="engage" data-screen-label="04 Pricing">
+  <div class="wrap">
+    <div class="pricing__head sr">
+      <h2>Ways to<br>engage.</h2>
+      <div class="pricing__head-meta">
+        <span class="eyebrow">Section · 04 / Pricing</span>
+        <p>Four tiers, one ladder. Most clients start small and grow into a retainer. Every engagement opens with a free discovery call.</p>
+      </div>
+    </div>
+
+    <div class="tiers sr-stagger">
+      <div class="tier" data-screen-label="Tier · Entry">
+        <div class="tier__n">01 · Start here</div>
+        <div class="tier__name">Entry Offers</div>
+        <div class="tier__price">R1,500 – R9,500</div>
+        <p class="tier__desc">Photography, audits and quick-turn creative. The fastest way to work with us.</p>
+        <ul class="tier__list">
+          <li><span class="o">Personal shoot</span><span class="p">from R1,500</span></li>
+          <li><span class="o">Branding shoot</span><span class="p">from R3,000</span></li>
+          <li><span class="o">Content shoot day</span><span class="p">from R3,500</span></li>
+          <li><span class="o">Strategy session</span><span class="p">R3.5–6K</span></li>
+          <li><span class="o">Audits · AI / brand / growth</span><span class="p">from R4,500</span></li>
+          <li><span class="o">Ad creative pack</span><span class="p">R4–8K</span></li>
+        </ul>
+      </div>
+
+      <div class="tier" data-screen-label="Tier · Projects">
+        <div class="tier__n">02 · Build</div>
+        <div class="tier__name">Projects</div>
+        <div class="tier__price">R12,000 – R65,000</div>
+        <p class="tier__desc">Scoped builds on a fixed clock — strategy, systems, film and campaigns.</p>
+        <ul class="tier__list">
+          <li class="flag"><span class="o">Brand Architecture Sprint ★</span><span class="p">R35–65K</span></li>
+          <li><span class="o">Automation System Build</span><span class="p">R15–35K</span></li>
+          <li><span class="o">Marketing System Build</span><span class="p">R15–30K</span></li>
+          <li><span class="o">Content Engine Build</span><span class="p">R12–25K</span></li>
+          <li><span class="o">Brand Film · short form</span><span class="p">R15–35K</span></li>
+          <li><span class="o">Campaign Package</span><span class="p">R20–45K</span></li>
+        </ul>
+      </div>
+
+      <div class="tier" data-screen-label="Tier · Retainers">
+        <div class="tier__n">03 · Always-on</div>
+        <div class="tier__name">Retainers</div>
+        <div class="tier__price">R6,000 – R35,000 / mo</div>
+        <p class="tier__desc">Monthly capacity across one layer or all three. Where the relationship lives.</p>
+        <ul class="tier__list">
+          <li class="flag"><span class="o">Ecosystem Growth Retainer</span><span class="p">R12–35K</span></li>
+          <li><span class="o">Content Production</span><span class="p">R8–18K</span></li>
+          <li><span class="o">Social Media Management</span><span class="p">R6–12K</span></li>
+          <li><span class="o">Technology Maintenance</span><span class="p">R6–15K</span></li>
+          <li><span class="o">Platform Fee · automation</span><span class="p">R2–8K</span></li>
+        </ul>
+      </div>
+
+      <div class="tier" data-screen-label="Tier · Programmes">
+        <div class="tier__n">04 · Transformation</div>
+        <div class="tier__name">Programmes</div>
+        <div class="tier__price">R45,000 – R200,000</div>
+        <p class="tier__desc">Multi-month engagements that rebuild a whole capability end to end.</p>
+        <ul class="tier__list">
+          <li><span class="o">AI Transformation</span><span class="p">R45–120K</span></li>
+          <li><span class="o">Digital Transformation</span><span class="p">R60–150K</span></li>
+          <li><span class="o">Franchise Brand Architecture</span><span class="p">R50–150K</span></li>
+          <li><span class="o">Growth Architecture System</span><span class="p">R50–120K</span></li>
+          <li><span class="o">B-BBEE ESD Partnership</span><span class="p">R40–200K</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Photography day rates -->
+    <div class="rates sr">
+      <div class="rates__head">
+        <h3>Photography day rates.</h3>
+        <span class="eyebrow">Entry · Half &amp; full day</span>
+      </div>
+      <p class="rates__note">Every shoot includes edited selects, an online delivery gallery and commercial-use licensing where relevant. The half-day is the foot in the door; the full day is where the range lives.</p>
+      <div class="rate-head">
+        <span>Shoot</span><span>Half day</span><span>Full day</span>
+      </div>
+      <div class="rate-row">
+        <div class="rn">Personal / Lifestyle<small>For yourself — social, milestones, events</small></div>
+        <div class="rv" data-label="Half day">R1,500</div>
+        <div class="rv" data-label="Full day">R2,500 – R3,000</div>
+      </div>
+      <div class="rate-row">
+        <div class="rn">Personal Branding<small>Founders, consultants, professionals</small></div>
+        <div class="rv" data-label="Half day">R3,000 – R3,500</div>
+        <div class="rv" data-label="Full day">R4,500 – R6,000</div>
+      </div>
+      <div class="rate-row">
+        <div class="rn">Food &amp; Menu<small>Restaurants, cafes, food concepts</small></div>
+        <div class="rv" data-label="Half day">R3,500 – R4,500</div>
+        <div class="rv" data-label="Full day">R6,500 – R8,500</div>
+      </div>
+      <div class="rate-row">
+        <div class="rn">Product<small>Retail, beauty &amp; e-commerce</small></div>
+        <div class="rv" data-label="Half day">R3,000 – R4,000</div>
+        <div class="rv" data-label="Full day">R5,500 – R7,500</div>
+      </div>
+      <div class="rate-row">
+        <div class="rn">Content Shoot Day<small>A bank of mixed business content</small></div>
+        <div class="rv" data-label="Half day">R3,500 – R4,500</div>
+        <div class="rv" data-label="Full day">R6,000 – R8,500</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROCESS ============ -->
+<section class="process" id="process" data-screen-label="05 Process">
+  <div class="wrap">
+    <div class="process__head sr">
+      <span class="eyebrow">Section · 05 / Operating System</span>
+      <h2 class="process__headline">
+        Intelligence <span class="arrow">→</span>
+        Action <span class="arrow">→</span>
+        Measurement.
+      </h2>
+    </div>
+
+    <div class="process__steps sr-stagger">
+      <div class="step">
+        <div class="step__num">STEP 01</div>
+        <div class="step__title">Listen</div>
+        <p class="step__desc">A two-week ground-truthing of the business, its people and its real bottleneck.</p>
+      </div>
+      <div class="step">
+        <div class="step__num">STEP 02</div>
+        <div class="step__title">Position</div>
+        <p class="step__desc">A one-page decision document. The thesis the work will defend.</p>
+      </div>
+      <div class="step">
+        <div class="step__num">STEP 03</div>
+        <div class="step__title">Build</div>
+        <p class="step__desc">Engineering, strategy and production move in parallel on weekly clocks.</p>
+      </div>
+      <div class="step">
+        <div class="step__num">STEP 04</div>
+        <div class="step__title">Ship</div>
+        <p class="step__desc">In market within ninety days. No quiet pilots, no permanent betas.</p>
+      </div>
+      <div class="step">
+        <div class="step__num">STEP 05</div>
+        <div class="step__title">Measure</div>
+        <p class="step__desc">A single number per engagement, reviewed every quarter. We earn the next one.</p>
+      </div>
+    </div>
+
+    <div class="sr" style="margin-top: 48px;">
+      <a href="process.html" class="btn btn--ghost-w">See the Full Process<span class="dot"></span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA STRIP ============ -->
+<section class="cta" data-screen-label="06 CTA Strip">
+  <div class="wrap">
+    <span class="eyebrow cta__eyebrow sr">Section · Start the conversation</span>
+    <h2 class="cta__headline sr">
+      <span class="l1">Pick a <em>layer.</em></span>
+      <span class="l2">Or take them all.</span>
+    </h2>
+    <p class="cta__sub sr">Discovery calls are free. Indecision is expensive. Tell us the brief — if it's right, we're in.</p>
+    <div class="cta__btns sr">
+      <a href="contact.html" class="btn btn--red">Book a Discovery Call<span class="dot"></span></a>
+      <a href="work.html" class="btn btn--ghost-w">See Selected Work</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer" data-screen-label="07 Footer">
+  <div class="wrap">
+    <div class="footer__top sr-stagger">
+      <div class="footer__brand">
+        <a href="index.html" class="logo">CATALYST<span>7</span></a>
+        <p class="footer__tag">A creative technology studio in Pretoria. Engineering, strategy and production — under one signature.</p>
+        <div class="footer__contact">
+          <span class="eyebrow">Direct</span>
+          <a href="mailto:catalyst7@catalyst7.co.za">catalyst7@catalyst7.co.za</a>
+          <a href="https://wa.me/27645576603">WhatsApp · 064 557 6603</a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="services.html#capabilities">Technology &amp; Automation</a></li>
+          <li><a href="services.html#capabilities">Business Consultancy</a></li>
+          <li><a href="services.html#capabilities">Production &amp; Media</a></li>
+          <li><a href="services.html#engage">Pricing &amp; Retainers</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Studio</h4>
+        <ul>
+          <li><a href="studio.html#code">Studio Code</a></li>
+          <li><a href="work.html">Selected Work</a></li>
+          <li><a href="process.html">Process</a></li>
+          <li><a href="#">Open Roles</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">Facebook</a></li>
+          <li><a href="#">TikTok</a></li>
+          <li><a href="#">LinkedIn</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2026 Catalyst 7 (Pty) Ltd · All rights reserved</span>
+      <div class="footer__social">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">TikTok</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Nav blur on scroll
+  const nav = document.getElementById('nav');
+  const onScroll = () => {
+    if (window.scrollY > 30) nav.classList.add('is-scrolled');
+    else nav.classList.remove('is-scrolled');
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // ── Page load animation — triggers on DOMContentLoaded so it fires fast
+  document.addEventListener('DOMContentLoaded', () => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.page-load').forEach(el => el.classList.add('is-loaded'));
+    });
+  });
+
+  // ── Scroll reveal via IntersectionObserver
+  const srObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        srObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.sr, .sr-stagger').forEach(el => srObserver.observe(el));
+
+  // ── Custom cursor — pointer (non-touch) devices only
+  (function () {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+
+    const dot  = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    if (!dot || !ring) return;
+
+    let mx = window.innerWidth / 2,  my = window.innerHeight / 2;
+    let rx = mx, ry = my;
+    let rafId = null;
+
+    // Lerp ring toward mouse — only ticks while ring is still catching up
+    function tick() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      if (Math.abs(mx - rx) > 0.15 || Math.abs(my - ry) > 0.15) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        rafId = null;
+      }
+    }
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX;
+      my = e.clientY;
+      dot.style.left = mx + 'px';
+      dot.style.top  = my + 'px';
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+
+    // Grow ring and turn red over interactive elements
+    document.querySelectorAll('a, button, [role="button"]').forEach(el => {
+      el.addEventListener('mouseenter', () => ring.classList.add('is-hover'));
+      el.addEventListener('mouseleave', () => ring.classList.remove('is-hover'));
+    });
+
+    // Hide cursors when mouse leaves the window
+    document.addEventListener('mouseleave', () => {
+      dot.style.opacity = '0';
+      ring.style.opacity = '0';
+    });
+    document.addEventListener('mouseenter', () => {
+      dot.style.opacity = '1';
+      ring.style.opacity = '1';
+    });
+  })();
+</script>
+
+
+
+</body></html>

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio · Catalyst 7</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; background: #000; }
+  body {
+    background: #000;
+    color: #fff;
+    font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+  img { max-width: 100%; display: block; }
+  ::selection { background: #EF0606; color: #fff; }
+
+  :root {
+    --red: #EF0606;
+    --white: #fff;
+    --stone: #EFEEE8;
+    --ink: #000;
+    --dark: #0A0A0A;
+    --gutter: 40px;
+    --max: 1720px;
+  }
+
+  .wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+
+  .eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.24em; text-transform: uppercase; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 22px; border-radius: 999px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+    border: 1px solid currentColor;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+    white-space: nowrap; cursor: pointer;
+  }
+  .btn .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+  .btn--red { background: var(--red); border-color: var(--red); color: #fff; }
+  .btn--red:hover { background: #fff; color: var(--red); border-color: #fff; }
+  .btn--ghost-w { color: #fff; border-color: rgba(255,255,255,0.4); }
+  .btn--ghost-w:hover { background: #fff; color: #000; border-color: #fff; }
+  .btn--ghost-k { color: #000; border-color: rgba(0,0,0,0.35); }
+  .btn--ghost-k:hover { background: #000; color: var(--red); border-color: #000; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 24px 0;
+    transition: background 250ms ease, backdrop-filter 250ms ease, border-color 250ms ease, color 250ms ease;
+    border-bottom: 1px solid transparent; color: #fff;
+  }
+  .nav.is-scrolled {
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border-bottom-color: rgba(255,255,255,0.08);
+  }
+  .nav__inner { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 32px; }
+  .logo { font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .logo span { color: var(--red); }
+  .nav__links { display: flex; gap: 40px; justify-content: center; }
+  .nav__links a {
+    font-size: 10px; font-weight: 500; letter-spacing: 0.26em; text-transform: uppercase;
+    position: relative; opacity: 0.85; transition: opacity 180ms ease;
+  }
+  .nav__links a:hover { opacity: 1; }
+  .nav__links a::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 1px;
+    background: var(--red); transform: scaleX(0); transform-origin: left; transition: transform 220ms ease;
+  }
+  .nav__links a:hover::after { transform: scaleX(1); }
+  .nav__links a.is-active { opacity: 1; }
+  .nav__links a.is-active::after { transform: scaleX(1); }
+  .nav__cta-wrap { justify-self: end; }
+  .nav__cta {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 12px 20px; border: 1px solid currentColor; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 10px; opacity: 0.9;
+    transition: background 200ms ease, color 200ms ease, border-color 200ms ease, opacity 180ms ease;
+  }
+  .nav__cta:hover { opacity: 1; background: var(--red); color: #fff; border-color: var(--red); }
+  .nav__cta .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); transition: background 200ms ease; }
+  .nav__cta:hover .dot { background: #fff; }
+
+  /* ============================================================ */
+  /* HERO ======================================================== */
+  /* ============================================================ */
+  .hero {
+    position: relative; min-height: 100vh; display: grid;
+    grid-template-columns: 1.05fr 1fr; background: #000; overflow: hidden;
+  }
+  .hero__type {
+    position: relative; padding: 140px var(--gutter) 64px;
+    display: flex; flex-direction: column; justify-content: space-between; z-index: 3;
+  }
+  .hero__top { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; }
+  .hero__marker {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 10px; font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(255,255,255,0.78);
+  }
+  .hero__marker .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--red); position: relative; }
+  .hero__marker .pulse::after {
+    content: ""; position: absolute; inset: -5px; border-radius: 50%;
+    border: 1px solid var(--red); animation: pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { transform: scale(0.55); opacity: 1; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
+  .hero__index {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(255,255,255,0.5); text-align: right; line-height: 1.6;
+  }
+  .hero__index strong { color: #fff; font-weight: 500; }
+
+  .hero__headline {
+    font-weight: 900; letter-spacing: -0.045em; line-height: 0.84; text-transform: uppercase;
+    font-size: clamp(84px, 12.5vw, 200px); margin-top: auto; width: max-content; max-width: 130%;
+  }
+  .hero__headline .line { display: block; margin-left: -0.06em; }
+  .hero__headline .line.outline { color: transparent; -webkit-text-stroke: 1.5px #fff; }
+  .hero__headline .dot { color: var(--red); -webkit-text-stroke: 0; }
+
+  .hero__bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; margin-top: 56px; }
+  .hero__sub { max-width: 400px; font-size: 16px; line-height: 1.55; color: rgba(255,255,255,0.62); }
+  .hero__stats { display: flex; gap: 48px; }
+  .hero__stat { text-align: right; }
+  .hero__stat .v { font-size: 44px; font-weight: 900; letter-spacing: -0.035em; line-height: 1; margin-bottom: 8px; }
+  .hero__stat .l { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+  .hero__stat .v em { font-style: normal; color: var(--red); }
+
+  /* RIGHT image */
+  .hero__image { position: relative; overflow: hidden; background: #0a0a0a; }
+  .hero__image-fill {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 78% 22%, rgba(239,6,6,0.32), transparent 55%),
+      radial-gradient(ellipse 90% 70% at 20% 95%, rgba(50,8,8,0.6), transparent 60%),
+      linear-gradient(150deg, #1a0707 0%, #0a0303 50%, #050505 100%);
+  }
+  .hero__image-shaft {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(90deg, transparent 0%, transparent 32%, rgba(255,255,255,0.05) 32%, rgba(255,255,255,0.12) 36%, rgba(255,255,255,0.02) 40%, transparent 40%),
+      linear-gradient(90deg, transparent 0%, transparent 62%, rgba(239,6,6,0.08) 62%, rgba(239,6,6,0.2) 66%, rgba(239,6,6,0.04) 70%, transparent 70%);
+    mix-blend-mode: screen;
+  }
+  .hero__image-hatch {
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 6px);
+    mix-blend-mode: overlay; opacity: 0.6;
+  }
+  .hero__image::before {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, #000 0%, rgba(0,0,0,0.7) 8%, rgba(0,0,0,0) 24%);
+    z-index: 2; pointer-events: none;
+  }
+  .hero__image::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.45) 100%);
+    z-index: 2; pointer-events: none;
+  }
+  .hero__image-label {
+    position: absolute; right: 32px; bottom: 32px; z-index: 3; text-align: right;
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.7); line-height: 1.6;
+  }
+  .hero__image-label .red-dot { display: inline-block; width: 6px; height: 6px; background: var(--red); border-radius: 50%; margin-left: 10px; vertical-align: middle; }
+  .hero__image-vt {
+    position: absolute; left: 28px; top: 50%; transform: rotate(-90deg) translateX(50%); transform-origin: left center;
+    font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase; color: rgba(255,255,255,0.4); white-space: nowrap; z-index: 3;
+  }
+  .hero__grain {
+    position: absolute; inset: 0; pointer-events: none; z-index: 4; opacity: 0.32; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* ============================================================ */
+  /* STORY (white) =============================================== */
+  /* ============================================================ */
+  .story { background: #fff; color: #000; padding: 150px 0; }
+  .story__grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 96px; align-items: start; }
+  .story__ghost {
+    font-size: clamp(240px, 28vw, 460px); font-weight: 900; line-height: 0.78; letter-spacing: -0.06em;
+    color: transparent; -webkit-text-stroke: 1.5px rgba(0,0,0,0.16); margin-bottom: -0.06em;
+  }
+  .story__headline { font-size: clamp(40px, 4.6vw, 64px); font-weight: 900; letter-spacing: -0.04em; line-height: 0.98; max-width: 14ch; }
+  .story__headline em { font-style: normal; color: var(--red); }
+  .story__right .eyebrow { display: block; margin-bottom: 28px; color: rgba(0,0,0,0.55); }
+  .story__right p { font-size: 16px; line-height: 1.7; color: rgba(0,0,0,0.68); margin-bottom: 22px; max-width: 54ch; }
+  .story__right p:first-of-type::first-letter { color: var(--red); font-weight: 600; }
+  .story__right .btn { margin-top: 20px; }
+
+  /* ============================================================ */
+  /* MANIFESTO (black) =========================================== */
+  /* ============================================================ */
+  .manifesto { background: #000; padding: 180px 0; text-align: center; }
+  .manifesto__bar { width: 1px; height: 96px; background: var(--red); margin: 0 auto 56px; }
+  .manifesto__quote {
+    font-size: clamp(40px, 5.6vw, 92px); font-weight: 900; letter-spacing: -0.04em;
+    line-height: 1.0; max-width: 16ch; margin: 0 auto;
+  }
+  .manifesto__quote em { font-style: normal; color: var(--red); }
+  .manifesto__sig {
+    margin-top: 56px; display: inline-flex; align-items: center; gap: 14px;
+    font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(255,255,255,0.6);
+  }
+  .manifesto__sig .bar { width: 28px; height: 1px; background: rgba(255,255,255,0.4); display: inline-block; }
+
+  /* ============================================================ */
+  /* STUDIO CODE (white) ========================================= */
+  /* ============================================================ */
+  .code { background: #fff; color: #000; padding: 150px 0; }
+  .code__head { display: flex; justify-content: space-between; align-items: baseline; gap: 32px; flex-wrap: wrap; margin-bottom: 8px; }
+  .code__head h2 { font-size: clamp(40px, 5vw, 72px); font-weight: 900; letter-spacing: -0.04em; line-height: 0.96; max-width: 14ch; }
+  .code__head .eyebrow { color: rgba(0,0,0,0.5); }
+  .code__head-meta { text-align: right; max-width: 320px; }
+  .code__head-meta .eyebrow { display: block; margin-bottom: 10px; }
+  .code__head-meta p { color: rgba(0,0,0,0.55); font-size: 13px; line-height: 1.55; }
+
+  .code__list { border-top: 1px solid rgba(0,0,0,0.16); margin-top: 56px; }
+  .principle {
+    display: grid; grid-template-columns: 100px 0.9fr 1.1fr; gap: 40px; align-items: baseline;
+    padding: 40px 0; border-bottom: 1px solid rgba(0,0,0,0.12);
+    transition: padding-left 260ms ease, background 260ms ease;
+  }
+  .principle:hover { padding-left: 12px; background: #faf9f5; }
+  .principle__n { font-size: 12px; font-weight: 600; letter-spacing: 0.18em; color: var(--red); }
+  .principle__t { font-size: clamp(24px, 2.6vw, 34px); font-weight: 900; letter-spacing: -0.03em; line-height: 1.02; }
+  .principle__d { font-size: 15px; line-height: 1.6; color: rgba(0,0,0,0.6); max-width: 46ch; }
+
+  /* ============================================================ */
+  /* GLANCE (black) ============================================== */
+  /* ============================================================ */
+  .glance { background: #000; padding: 130px 0; border-top: 1px solid rgba(255,255,255,0.06); }
+  .glance .eyebrow { display: block; color: rgba(255,255,255,0.55); margin-bottom: 56px; }
+  .glance__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; border-top: 1px solid rgba(255,255,255,0.14); padding-top: 44px; }
+  .gstat { padding-right: 16px; }
+  .gstat + .gstat { border-left: 1px solid rgba(255,255,255,0.08); padding-left: 28px; }
+  .gstat__v { font-size: clamp(56px, 6vw, 88px); font-weight: 900; letter-spacing: -0.04em; line-height: 0.9; margin-bottom: 18px; }
+  .gstat__v em { font-style: normal; color: var(--red); }
+  .gstat__l { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+
+  /* ============================================================ */
+  /* BUILT (white) =============================================== */
+  /* ============================================================ */
+  .built { background: #fff; color: #000; padding: 150px 0; }
+  .built__head { display: flex; justify-content: space-between; align-items: baseline; gap: 32px; flex-wrap: wrap; margin-bottom: 64px; }
+  .built__head h2 { font-size: clamp(40px, 5vw, 72px); font-weight: 900; letter-spacing: -0.04em; line-height: 0.96; max-width: 16ch; }
+  .built__head .eyebrow { color: rgba(0,0,0,0.5); }
+  .built__head-meta { text-align: right; max-width: 320px; }
+  .built__head-meta .eyebrow { display: block; margin-bottom: 10px; }
+  .built__head-meta p { color: rgba(0,0,0,0.55); font-size: 13px; line-height: 1.55; }
+  .built__grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgba(0,0,0,0.16); }
+  .pillar { padding: 44px 36px 48px; border-bottom: 1px solid rgba(0,0,0,0.16); border-right: 1px solid rgba(0,0,0,0.1); }
+  .pillar:last-child { border-right: 0; }
+  .pillar__n { font-size: 10px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--red); margin-bottom: 28px; }
+  .pillar__t { font-size: 26px; font-weight: 900; letter-spacing: -0.03em; line-height: 1.02; margin-bottom: 16px; }
+  .pillar__d { font-size: 15px; line-height: 1.65; color: rgba(0,0,0,0.62); max-width: 36ch; }
+
+  /* ============================================================ */
+  /* CTA (black) ================================================= */
+  /* ============================================================ */
+  .cta { background: #000; color: #fff; padding: 180px 0; position: relative; text-align: center; }
+  .cta__eyebrow { display: inline-block; margin-bottom: 36px; color: rgba(255,255,255,0.55); }
+  .cta__headline { font-size: clamp(56px, 10vw, 168px); font-weight: 900; letter-spacing: -0.045em; line-height: 0.9; margin-bottom: 40px; }
+  .cta__headline .l1 { display: block; color: #fff; }
+  .cta__headline .l2 { display: block; color: transparent; -webkit-text-stroke: 1.5px #fff; }
+  .cta__headline em { font-style: normal; color: var(--red); }
+  .cta__sub { font-size: 16px; line-height: 1.55; color: rgba(255,255,255,0.6); margin: 0 auto 48px; max-width: 50ch; }
+  .cta__btns { display: inline-flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .cta .btn--red { padding: 18px 32px; font-size: 12px; }
+
+  /* ============================================================ */
+  /* FOOTER ====================================================== */
+  /* ============================================================ */
+  .footer { background: var(--dark); padding: 72px 0 44px; border-top: 1px solid rgba(255,255,255,0.05); }
+  .footer__top { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 56px; margin-bottom: 88px; }
+  .footer__brand .logo { font-size: 18px; margin-bottom: 18px; display: block; }
+  .footer__tag { font-size: 13px; line-height: 1.55; color: rgba(255,255,255,0.55); max-width: 30ch; margin-bottom: 24px; }
+  .footer__contact { display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: rgba(255,255,255,0.8); }
+  .footer__contact a:hover { color: var(--red); }
+  .footer__contact .eyebrow { color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+  .footer__col h4 { font-size: 10px; font-weight: 500; letter-spacing: 0.26em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 24px; }
+  .footer__col ul { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .footer__col a { font-size: 14px; color: rgba(255,255,255,0.85); transition: color 180ms ease; }
+  .footer__col a:hover { color: var(--red); }
+  .footer__bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 36px; border-top: 1px solid rgba(255,255,255,0.06); gap: 24px; flex-wrap: wrap; }
+  .footer__copy { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+  .footer__social { display: flex; gap: 28px; }
+  .footer__social a { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.75); }
+  .footer__social a:hover { color: var(--red); }
+
+  /* ============================================================ */
+  /* RESPONSIVE ================================================== */
+  /* ============================================================ */
+  @media (max-width: 1100px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero__image { aspect-ratio: 16/9; min-height: 320px; }
+    .hero__image::before { background: linear-gradient(0deg, #000 0%, rgba(0,0,0,0.7) 8%, rgba(0,0,0,0) 24%); }
+    .hero__type { padding-bottom: 56px; }
+    .story__grid { grid-template-columns: 1fr; gap: 48px; }
+    .glance__grid { grid-template-columns: 1fr 1fr; gap: 40px 24px; }
+    .gstat:nth-child(odd) { border-left: 0; padding-left: 0; }
+    .built__grid { grid-template-columns: 1fr; }
+    .pillar { border-right: 0; }
+  }
+  @media (max-width: 900px) {
+    :root { --gutter: 24px; }
+    .nav__inner { grid-template-columns: 1fr auto; }
+    .nav__links { display: none; }
+    .hero__bottom { flex-direction: column; align-items: flex-start; }
+    .hero__stats { gap: 32px; }
+    .principle { grid-template-columns: 1fr; gap: 12px; padding: 32px 0; }
+    .glance__grid { grid-template-columns: 1fr; gap: 0; }
+    .gstat { border-left: 0; padding-left: 0; padding: 28px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+    .gstat + .gstat { border-left: 0; padding-left: 0; }
+    .footer__top { grid-template-columns: 1fr; gap: 48px; }
+  }
+
+  /* ============================================================ */
+  /* PAGE LOAD ANIMATION ========================================= */
+  /* ============================================================ */
+  .page-load {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .page-load.is-loaded {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .page-load--d1 { transition-delay: 0.1s; }
+  .page-load--d2 { transition-delay: 0.25s; }
+  .page-load--d3 { transition-delay: 0.4s; }
+
+  /* ============================================================ */
+  /* SCROLL REVEAL =============================================== */
+  /* ============================================================ */
+  .sr {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.75s ease, transform 0.75s ease;
+  }
+  .sr.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Stagger: children animate in sequence with 0.1s offsets */
+  .sr-stagger > * {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.75s ease, transform 0.75s ease;
+  }
+  .sr-stagger.is-visible > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0s; }
+  .sr-stagger.is-visible > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
+  .sr-stagger.is-visible > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
+  .sr-stagger.is-visible > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+  .sr-stagger.is-visible > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+
+  /* ============================================================ */
+  /* CUSTOM CURSOR (pointer: fine devices only) ================== */
+  /* ============================================================ */
+  @media (pointer: fine) {
+    * { cursor: none !important; }
+
+    .cursor-dot {
+      position: fixed;
+      width: 6px; height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      will-change: left, top;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 32px; height: 32px;
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 200ms ease, height 200ms ease, border-color 200ms ease;
+      will-change: left, top;
+    }
+    .cursor-ring.is-hover {
+      width: 52px; height: 52px;
+      border-color: var(--red);
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom cursor — hidden on touch/coarse devices via CSS media query -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+
+<!-- ============ NAV ============ -->
+<nav class="nav page-load" id="nav" data-screen-label="Nav">
+  <div class="wrap nav__inner">
+    <a href="index.html" class="logo">CATALYST<span>7</span></a>
+    <div class="nav__links">
+      <a href="services.html">Services</a>
+      <a href="work.html">Work</a>
+      <a href="studio.html" class="is-active">Studio</a>
+      <a href="process.html">Process</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="nav__cta-wrap">
+      <a href="contact.html" class="nav__cta">Start a Project<span class="dot"></span></a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" data-screen-label="01 Studio Hero">
+  <div class="hero__grain"></div>
+
+  <!-- LEFT: Type -->
+  <div class="hero__type">
+    <div class="hero__top page-load page-load--d1">
+      <span class="hero__marker">
+        <span class="pulse"></span>
+        Section · Studio · Est. 2025
+      </span>
+      <div class="hero__index">
+        <div>03 LAYERS · 01 SIGNATURE</div>
+        <div><strong>Pretoria · ZA</strong></div>
+      </div>
+    </div>
+
+    <div>
+      <h1 class="hero__headline page-load page-load--d2">
+        <span class="line">The</span>
+        <span class="line outline">Studio<span class="dot">.</span></span>
+      </h1>
+
+      <div class="hero__bottom page-load page-load--d3">
+        <p class="hero__sub">A creative technology studio in Pretoria, assembled in 2025 to close the gap between what businesses say and what they actually ship.</p>
+        <div class="hero__stats">
+          <div class="hero__stat">
+            <div class="v">2025</div>
+            <div class="l">Founded</div>
+          </div>
+          <div class="hero__stat">
+            <div class="v"><em>03</em></div>
+            <div class="l">Layers</div>
+          </div>
+          <div class="hero__stat">
+            <div class="v">ZA</div>
+            <div class="l">Pretoria</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: editorial image -->
+  <div class="hero__image page-load page-load--d1">
+    <div class="hero__image-fill"></div>
+    <div class="hero__image-shaft"></div>
+    <div class="hero__image-hatch"></div>
+    <div class="hero__image-vt">Plate 003 · The Studio · Frame 01</div>
+    <div class="hero__image-label">
+      <div>ONE STUDIO · THREE LAYERS</div>
+      <div>PRETORIA · ZA <span class="red-dot"></span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ STORY ============ -->
+<section class="story" data-screen-label="02 Story">
+  <div class="wrap story__grid">
+    <div class="story__left">
+      <div class="story__ghost sr">3</div>
+      <h2 class="story__headline sr">One studio.<br>Three layers.<br><em>No ceiling.</em></h2>
+    </div>
+    <div class="story__right">
+      <span class="eyebrow sr">Section · 02 / Who we are</span>
+      <p class="sr">Catalyst 7 is a creative technology studio in Pretoria. We were assembled in 2025 to do one thing — close the gap between what businesses say and what they actually ship.</p>
+      <p class="sr">The studio runs across three layers — technology, consultancy, and production — under a single operating discipline. You get one partner with the texture of three teams, and none of the handoffs.</p>
+      <p class="sr">We work with operators, founders and cultural producers across Southern Africa and beyond. Most engagements start with a single conversation and end as long-running ecosystems.</p>
+      <a href="#code" class="btn btn--ghost-k sr">Read the Studio Code</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MANIFESTO ============ -->
+<section class="manifesto" data-screen-label="03 Manifesto">
+  <div class="wrap">
+    <div class="manifesto__bar sr"></div>
+    <h2 class="manifesto__quote sr">We don't take<br>briefs. We take<br><em>positions.</em></h2>
+    <div class="manifesto__sig sr">
+      <span class="bar"></span>
+      <span>Catalyst 7 · Studio Code</span>
+      <span class="bar"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STUDIO CODE ============ -->
+<section class="code" id="code" data-screen-label="04 Studio Code">
+  <div class="wrap">
+    <div class="code__head">
+      <h2 class="sr">The Studio<br>Code.</h2>
+      <div class="code__head-meta sr">
+        <span class="eyebrow">Section · 04 / Operating Principles</span>
+        <p>Six rules the work has to pass before it leaves the building.</p>
+      </div>
+    </div>
+
+    <div class="code__list sr-stagger">
+      <div class="principle">
+        <div class="principle__n">01</div>
+        <div class="principle__t">Positions, not briefs</div>
+        <p class="principle__d">We take a side and defend it in the work — not in a forty-page deck. The thesis comes first; everything else serves it.</p>
+      </div>
+      <div class="principle">
+        <div class="principle__n">02</div>
+        <div class="principle__t">Ship the system</div>
+        <p class="principle__d">The deliverable is working software and live work, never the slide about it. If it doesn't run in the real world, it isn't done.</p>
+      </div>
+      <div class="principle">
+        <div class="principle__n">03</div>
+        <div class="principle__t">One signature</div>
+        <p class="principle__d">Three layers, one accountable lead, one clock. You manage a relationship, not a stack of agencies and their handoffs.</p>
+      </div>
+      <div class="principle">
+        <div class="principle__n">04</div>
+        <div class="principle__t">Weekly proof</div>
+        <p class="principle__d">Every engagement shows something real every week. Momentum is the metric; we'd rather demonstrate than report.</p>
+      </div>
+      <div class="principle">
+        <div class="principle__n">05</div>
+        <div class="principle__t">In market in ninety</div>
+        <p class="principle__d">We move from first listen to live within ninety days. No quiet pilots, no permanent betas, no work that never sees daylight.</p>
+      </div>
+      <div class="principle">
+        <div class="principle__n">06</div>
+        <div class="principle__t">One number</div>
+        <p class="principle__d">Each engagement is judged on a single number, reviewed every quarter. We earn the next one — or we don't.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GLANCE ============ -->
+<section class="glance" data-screen-label="05 At a Glance">
+  <div class="wrap">
+    <span class="eyebrow sr">Section · 05 / The studio at a glance</span>
+    <div class="glance__grid sr-stagger">
+      <div class="gstat">
+        <div class="gstat__v">2025</div>
+        <div class="gstat__l">Year founded</div>
+      </div>
+      <div class="gstat">
+        <div class="gstat__v"><em>03</em></div>
+        <div class="gstat__l">Capability layers</div>
+      </div>
+      <div class="gstat">
+        <div class="gstat__v">12</div>
+        <div class="gstat__l">Engagements shipped</div>
+      </div>
+      <div class="gstat">
+        <div class="gstat__v">90</div>
+        <div class="gstat__l">Days to market</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BUILT ============ -->
+<section class="built" data-screen-label="06 How We're Built">
+  <div class="wrap">
+    <div class="built__head">
+      <h2 class="sr">One studio,<br>built as a network.</h2>
+      <div class="built__head-meta sr">
+        <span class="eyebrow">Section · 06 / How we're built</span>
+        <p>An engineering-led core, a production partner, and a bench of collaborators — assembled per engagement.</p>
+      </div>
+    </div>
+    <div class="built__grid sr-stagger">
+      <div class="pillar">
+        <div class="pillar__n">Core</div>
+        <h3 class="pillar__t">Engineering &amp; strategy</h3>
+        <p class="pillar__d">The permanent spine of the studio. Automation, systems and the strategic counsel that scopes and steers every engagement.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar__n">Partner</div>
+        <h3 class="pillar__t">Production house</h3>
+        <p class="pillar__d">An equity relationship that gives us film, TV and music production at studio standard — and access to a wider creative network.</p>
+      </div>
+      <div class="pillar">
+        <div class="pillar__n">Network</div>
+        <h3 class="pillar__t">Creative collaborators</h3>
+        <p class="pillar__d">Designers, directors and producers drawn in per brief, so each engagement carries exactly the craft it needs and no overhead it doesn't.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="cta" data-screen-label="07 CTA Strip">
+  <div class="wrap">
+    <span class="eyebrow cta__eyebrow sr">Section · Start the conversation</span>
+    <h2 class="cta__headline sr">
+      <span class="l1">Work with</span>
+      <span class="l2">the studio.</span>
+    </h2>
+    <p class="cta__sub sr">Most engagements start with a single conversation. Discovery calls are free — tell us where the gap is.</p>
+    <div class="cta__btns sr">
+      <a href="contact.html" class="btn btn--red">Book a Discovery Call<span class="dot"></span></a>
+      <a href="services.html" class="btn btn--ghost-w">See What We Do</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer" data-screen-label="08 Footer">
+  <div class="wrap">
+    <div class="footer__top sr-stagger">
+      <div class="footer__brand">
+        <a href="index.html" class="logo">CATALYST<span>7</span></a>
+        <p class="footer__tag">A creative technology studio in Pretoria. Engineering, strategy and production — under one signature.</p>
+        <div class="footer__contact">
+          <span class="eyebrow">Direct</span>
+          <a href="mailto:catalyst7@catalyst7.co.za">catalyst7@catalyst7.co.za</a>
+          <a href="https://wa.me/27645576603">WhatsApp · 064 557 6603</a>
+        </div>
+      </div>
+      <div class="footer__col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="services.html#capabilities">Technology &amp; Automation</a></li>
+          <li><a href="services.html#capabilities">Business Consultancy</a></li>
+          <li><a href="services.html#capabilities">Production &amp; Media</a></li>
+          <li><a href="services.html#engage">Pricing &amp; Retainers</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Studio</h4>
+        <ul>
+          <li><a href="studio.html#code">The Studio Code</a></li>
+          <li><a href="work.html">Selected Work</a></li>
+          <li><a href="process.html">Process</a></li>
+          <li><a href="#">Open Roles</a></li>
+        </ul>
+      </div>
+      <div class="footer__col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">Facebook</a></li>
+          <li><a href="#">TikTok</a></li>
+          <li><a href="#">LinkedIn</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span class="footer__copy">© 2026 Catalyst 7 (Pty) Ltd · All rights reserved</span>
+      <div class="footer__social">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">TikTok</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  const onScroll = () => {
+    if (window.scrollY > 30) nav.classList.add('is-scrolled');
+    else nav.classList.remove('is-scrolled');
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // ── Page load animation — triggers on DOMContentLoaded so it fires fast
+  document.addEventListener('DOMContentLoaded', () => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.page-load').forEach(el => el.classList.add('is-loaded'));
+    });
+  });
+
+  // ── Scroll reveal via IntersectionObserver
+  const srObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        srObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.sr, .sr-stagger').forEach(el => srObserver.observe(el));
+
+  // ── Custom cursor — pointer (non-touch) devices only
+  (function () {
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+
+    const dot  = document.getElementById('cursorDot');
+    const ring = document.getElementById('cursorRing');
+    if (!dot || !ring) return;
+
+    let mx = window.innerWidth / 2,  my = window.innerHeight / 2;
+    let rx = mx, ry = my;
+    let rafId = null;
+
+    // Lerp ring toward mouse — only ticks while ring is still catching up
+    function tick() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      if (Math.abs(mx - rx) > 0.15 || Math.abs(my - ry) > 0.15) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        rafId = null;
+      }
+    }
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX;
+      my = e.clientY;
+      dot.style.left = mx + 'px';
+      dot.style.top  = my + 'px';
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+
+    // Grow ring and turn red over interactive elements
+    document.querySelectorAll('a, button, [role="button"]').forEach(el => {
+      el.addEventListener('mouseenter', () => ring.classList.add('is-hover'));
+      el.addEventListener('mouseleave', () => ring.classList.remove('is-hover'));
+    });
+
+    // Hide cursors when mouse leaves the window
+    document.addEventListener('mouseleave', () => {
+      dot.style.opacity = '0';
+      ring.style.opacity = '0';
+    });
+    document.addEventListener('mouseenter', () => {
+      dot.style.opacity = '1';
+      ring.style.opacity = '1';
+    });
+  })();
+</script>
+
+
+
+</body></html>
