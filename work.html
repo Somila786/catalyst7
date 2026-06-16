@@ -832,6 +832,7 @@
       z-index: 9999;
       transform: translate(-50%, -50%);
       will-change: left, top;
+      transition: background 200ms ease;
     }
     .cursor-ring {
       position: fixed;
@@ -845,6 +846,8 @@
       will-change: left, top;
     }
     .cursor-ring.is-hover { width: 52px; height: 52px; border-color: var(--red); }
+    .cursor-dot.is-light { background: var(--red); }
+    .cursor-ring.is-light { border-color: rgba(239,6,6,0.85); }
   }
 
   /* ============================================================ */
@@ -1243,11 +1246,29 @@
       }
     }
 
+    function bgIsLight(x, y) {
+      let node = document.elementFromPoint(x, y);
+      while (node && node !== document.documentElement) {
+        const bg = window.getComputedStyle(node).backgroundColor;
+        const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+        if (m) {
+          const alpha = m[4] !== undefined ? parseFloat(m[4]) : 1;
+          if (alpha < 0.05) { node = node.parentElement; continue; }
+          return (0.299 * +m[1] + 0.587 * +m[2] + 0.114 * +m[3]) / 255 > 0.5;
+        }
+        node = node.parentElement;
+      }
+      return false;
+    }
+
     document.addEventListener('mousemove', e => {
       mx = e.clientX; my = e.clientY;
       dot.style.left = mx + 'px';
       dot.style.top  = my + 'px';
       if (!rafId) rafId = requestAnimationFrame(tick);
+      const light = bgIsLight(mx, my);
+      dot.classList.toggle('is-light', light);
+      ring.classList.toggle('is-light', light);
     });
 
     document.querySelectorAll('a, button, [role="button"], .card').forEach(el => {
