@@ -269,6 +269,15 @@
   .step__when { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-top: 22px; }
 
   /* ============================================================ */
+  /* CALENDLY EMBED ============================================= */
+  /* ============================================================ */
+  .book { padding: 100px 0; background: var(--dark); border-top: 1px solid rgba(255,255,255,0.06); }
+  .book__head { text-align: center; margin-bottom: 56px; }
+  .book__head h2 { font-size: clamp(32px, 5vw, 52px); font-weight: 900; letter-spacing: -0.03em; color: #fff; }
+  .book__head p { margin-top: 16px; font-size: 15px; color: rgba(255,255,255,0.55); }
+  .book__widget { border-radius: 16px; overflow: hidden; }
+
+  /* ============================================================ */
   /* FOOTER ====================================================== */
   /* ============================================================ */
   .footer { background: var(--dark); padding: 72px 0 44px; border-top: 1px solid rgba(255,255,255,0.05); }
@@ -561,6 +570,22 @@
       </div>
     </aside>
 
+  </div>
+</section>
+
+<!-- ============ BOOK A CALL ============ -->
+<section class="book" data-screen-label="Book a Call">
+  <div class="wrap">
+    <div class="book__head sr">
+      <span class="eyebrow">Free · 30 minutes · No obligation</span>
+      <h2>Book a <em>discovery call</em></h2>
+      <p>Pick a time that works — Mon–Fri, 08:00–18:00 SAST.</p>
+    </div>
+    <div class="book__widget sr">
+      <!-- Calendly inline widget -->
+      <div class="calendly-inline-widget" data-url="https://calendly.com/catalyst948/discovery-call?hide_gdpr_banner=1&background_color=0a0a0a&text_color=ffffff&primary_color=ef0606" style="min-width:320px;height:700px;"></div>
+      <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+    </div>
   </div>
 </section>
 
