@@ -705,11 +705,31 @@
 
   const form = document.getElementById('contactForm');
   const sent = document.getElementById('formSent');
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!form.checkValidity()) { form.reportValidity(); return; }
-    sent.classList.add('is-visible');
-    form.querySelector('button[type=submit]').textContent = 'Sent ✓';
+    const btn = form.querySelector('button[type=submit]');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('https://formspree.io/catalyst7@catalyst7.co.za', {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        sent.classList.add('is-visible');
+        btn.textContent = 'Sent ✓';
+      } else {
+        btn.textContent = 'Send the Brief';
+        btn.disabled = false;
+        alert('Something went wrong — please email us directly at catalyst7@catalyst7.co.za');
+      }
+    } catch {
+      btn.textContent = 'Send the Brief';
+      btn.disabled = false;
+      alert('Something went wrong — please email us directly at catalyst7@catalyst7.co.za');
+    }
   });
 
   // ── Page load animation — triggers on DOMContentLoaded so it fires fast
