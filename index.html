@@ -963,6 +963,20 @@
   }
   .footer-cta .btn { padding: 18px 32px; font-size: 12px; }
 
+  /* ---- Inline Calendly booking ---- */
+  .book-embed { margin-top: 64px; text-align: left; }
+  .book-embed__label { text-align: center; margin-bottom: 28px; }
+  .book-embed__label p { margin-top: 12px; font-size: 14px; color: rgba(255,255,255,0.55); }
+  .book-embed__frame {
+    max-width: 1000px;
+    margin: 0 auto;
+    border: 1px solid rgba(239,6,6,0.35);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--dark);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+  }
+
   /* ============================================================ */
   /* FOOTER (#0A0A0A) ============================================ */
   /* ============================================================ */
@@ -1489,9 +1503,22 @@
     </h2>
     <p class="footer-cta__sub sr">Discovery calls are free. Indecision is expensive.</p>
     <div class="footer-cta__ctas sr">
-      <a href="https://calendly.com/catalyst7/discovery-call" target="_blank" rel="noopener" class="btn btn--red">Book a Discovery Call<span class="dot"></span></a>
       <a href="https://wa.me/27645576603" target="_blank" rel="noopener" class="btn btn--ghost-w">WhatsApp Us<span class="dot"></span></a>
       <a href="work.html" class="btn btn--ghost-w" style="border-color: rgba(255,255,255,0.25);">See the Work First</a>
+    </div>
+
+    <!-- ---- Inline Calendly booking (brand colours) ---- -->
+    <div class="book-embed sr">
+      <div class="book-embed__label">
+        <span class="eyebrow" style="color: var(--red);">Free · 30 minutes · No obligation</span>
+        <p>Pick a time below — Mon–Fri, 08:00–18:00 SAST.</p>
+      </div>
+      <div class="book-embed__frame">
+        <div class="calendly-inline-widget"
+             data-url="https://calendly.com/catalyst7/discovery-call?hide_gdpr_banner=1&background_color=0a0a0a&text_color=ffffff&primary_color=ef0606"
+             style="min-width:320px;height:700px;"></div>
+        <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+      </div>
     </div>
   </div>
 </section>
