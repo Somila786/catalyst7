@@ -963,19 +963,21 @@
   }
   .footer-cta .btn { padding: 18px 32px; font-size: 12px; }
 
-  /* ---- Inline Calendly booking ---- */
-  .book-embed { margin-top: 64px; text-align: left; }
-  .book-embed__label { text-align: center; margin-bottom: 28px; }
-  .book-embed__label p { margin-top: 12px; font-size: 14px; color: rgba(255,255,255,0.55); }
-  .book-embed__frame {
-    max-width: 1000px;
-    margin: 0 auto;
-    border: 1px solid rgba(239,6,6,0.35);
-    border-radius: 16px;
-    overflow: hidden;
-    background: var(--dark);
-    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+  /* ---- Inline booking (native, seamless) ---- */
+  .book-embed { margin-top: 88px; text-align: left; }
+  .book-embed__label {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 24px; flex-wrap: wrap;
+    padding-bottom: 24px; margin-bottom: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.14);
   }
+  .book-embed__label p { font-size: 13px; line-height: 1.55; color: rgba(255,255,255,0.5); max-width: 320px; text-align: right; }
+  .book-embed__frame {
+    background: var(--dark);
+    overflow: hidden;
+  }
+  /* Pull Calendly's own top padding so the calendar sits flush under the hairline */
+  .book-embed__frame .calendly-inline-widget { margin-top: -24px; }
 
   /* ============================================================ */
   /* FOOTER (#0A0A0A) ============================================ */
